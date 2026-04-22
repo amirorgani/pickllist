@@ -1,0 +1,78 @@
+rules_version = '2';
+
+// Single-farm deployment. Every authenticated user is either a `manager`
+// or a `worker`; the role is stored on the user document and enforced
+// here. See docs/data-model.md for the schema.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function isSignedIn()   { return request.auth != null; }
+    function myRole()       { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isManager()    { return isSignedIn() && myRole() == 'manager'; }
+    function myUid()        { return request.auth.uid; }
+
+    // Fields that a worker is allowed to modify on a picking list item.
+    function workerOnlyTouchesAllowedFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['assignedTo', 'pickedQuantity', 'pickedAt', 'completedBy']);
+    }
+
+    // ---------- users ----------
+    // Only managers create/edit user records (auth accounts are created via
+    // Firebase Admin SDK from a manager tool). Any signed-in user can read
+    // the directory (needed for the assignee picker).
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isManager();
+    }
+
+    // ---------- crops ----------
+    match /crops/{cropId} {
+      allow read:  if isSignedIn();
+      allow write: if isManager();
+    }
+
+    // ---------- picking lists ----------
+    match /pickingLists/{listId} {
+      allow read:   if isSignedIn();
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isManager();
+
+      match /items/{itemId} {
+        allow read: if isSignedIn();
+
+        // Manager can do anything.
+        allow write: if isManager();
+
+        // Workers can claim (set assignedTo to themselves), release their
+        // own row (null), and mark their assigned row picked.
+        allow update: if isSignedIn()
+          && !isManager()
+          && workerOnlyTouchesAllowedFields()
+          && (
+            // Claim an unassigned row:
+            (resource.data.assignedTo == null
+              && request.resource.data.assignedTo == myUid()
+              && request.resource.data.pickedAt == resource.data.pickedAt)
+            ||
+            // Release a row they own:
+            (resource.data.assignedTo == myUid()
+              && request.resource.data.assignedTo == null)
+            ||
+            // Mark picked on a row they own:
+            (resource.data.assignedTo == myUid()
+              && request.resource.data.assignedTo == myUid()
+              && request.resource.data.completedBy == myUid())
+          );
+      }
+    }
+
+    // ---------- templates ----------
+    match /templates/{templateId} {
+      allow read:  if isSignedIn();
+      allow write: if isManager();
+    }
+  }
+}
