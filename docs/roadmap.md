@@ -8,10 +8,10 @@ around that constraint.
 
 1. **One farm, one codebase.** Do not add multi-tenancy, org switching,
    or configurability for other farms. Every such suggestion is YAGNI.
-2. **Quality gates are hard.** A PR that drops coverage below 90 %,
-   breaks a guardrail test, or adds a dependency without justification
-   is rejected automatically by CI. Don't try to work around it —
-   improve the change.
+2. **Quality gates are hard.** A PR that drops coverage below the
+   current ratchet, breaks a guardrail test, or adds a dependency
+   without justification is rejected automatically by CI. Don't try to
+   work around it — improve the change.
 3. **Every issue has an owner type.** Either `agent` (default) or
    `human` (the farm owner, tagged `requires:human`). Agents must not
    attempt to auto-complete `requires:human` steps; they should stop
@@ -83,25 +83,32 @@ quality unless CI forcefully stops them. Phase 0 codifies every "do
 not do X" rule as an automated test or CI step. Without Phase 0,
 Phases 1+ cannot be trusted.
 
-## `GUARD-01` — Enforce ≥ 90 % line coverage (CI gate)
+## `GUARD-01` — Enforce coverage ratchet (CI gate)
 
 - **Type:** `type:guardrail` · **Phase:** `phase:0` · **Platform:** `platform:all`
 - **Priority:** `priority:p0` · **Owner:** agent
 - **Blocks:** everything else
 - **Blocked by:** none
 
-**Description.** Wire a coverage threshold check into the CI workflow.
-Below 90 % (overall, and ≥ 80 % per file under `lib/features/**/domain`
-and `lib/features/**/data`), the job fails.
+**Description.** Wire a coverage-ratchet check into the CI workflow.
+The repo starts well below the long-term target, so the first gate
+should prevent regressions instead of freezing all work: PR overall
+coverage must not drop below the baseline on `main`, touched files
+under `lib/features/**/domain` and `lib/features/**/data` must stay at
+≥ 80 %, and 90 % overall remains the pre-ship target.
 
 **Acceptance criteria:**
 - [ ] `flutter test --coverage` runs in CI (already does).
-- [ ] A post-step parses `coverage/lcov.info` and fails if overall < 90 %.
-- [ ] A secondary check verifies per-file thresholds for `domain/` and `data/`.
+- [ ] A post-step parses `coverage/lcov.info` and fails if PR overall
+      coverage drops below the baseline / ratchet from `main`.
+- [ ] A secondary check verifies touched-file thresholds for `domain/`
+      and `data/`.
+- [ ] The ratchet only moves upward when `main` improves; updating it
+      requires a deliberate change in the same PR.
 - [ ] Implementation tool: a small Dart script in `tool/check_coverage.dart`
       (not a shell `awk` — must be testable).
 - [ ] The script itself is tested (`test/tool/check_coverage_test.dart`).
-- [ ] `docs/guardrails.md` documents the rule.
+- [ ] `docs/guardrails.md` documents the ratchet and the 90 % ship target.
 
 ## `GUARD-02` — Tighter analyzer rules
 
@@ -264,16 +271,16 @@ that can serve multiple devices live.
 <https://console.firebase.google.com>. Turn on:
 - **Authentication** → Email/Password provider
 - **Cloud Firestore** in production mode (any region)
-- **Cloud Messaging** (for Phase 5)
-- **Billing** (Blaze plan — required for Cloud Functions in Phase 5; the
-  Spark plan is fine for Phases 1–4)
+- **Cloud Messaging** (for Phase 4)
+- **Billing** (Blaze plan — required before Cloud Functions in
+  `INFRA-02`, `MGMT-02`, and `FIRE-12`; don't defer it past Phase 1)
 
 **Deliverables (human):**
 - [ ] Project ID recorded in a new file `firebase/.project-id` (just the ID, one line).
 - [ ] Farm owner runs `firebase login` locally.
 - [ ] Farm owner runs `flutterfire configure --project=<id>` — this
-      commits `lib/firebase_options.dart` (gitignored locally but the
-      values are needed; see `FIRE-02`).
+      generates `lib/firebase_options.dart`; commit/ignore policy is
+      finalized in `FIRE-02`.
 
 ## `FIRE-02` — Commit `firebase_options.dart` strategy
 
@@ -281,20 +288,23 @@ that can serve multiple devices live.
 - **Blocked by:** `FIRE-01`
 - **Owner:** agent
 
-**Description.** `firebase_options.dart` contains public API keys (not
-secrets; they're safe to commit for client SDKs). But the current
-`.gitignore` excludes it. Revise the policy:
+**Description.** `firebase_options.dart` contains public client config,
+but the repo currently has conflicting instructions about which Firebase
+files are committed. Adopt one policy and update the docs / ignore rules
+together:
 
-- Commit `lib/firebase_options.dart` (public keys only).
-- Enable Firebase App Check (request from the human via this issue) so
-  the committed keys can't be abused by non-app callers.
-- Keep `google-services.json` and `GoogleService-Info.plist` gitignored
-  only if they contain anything beyond the public client config; otherwise
-  commit them too.
+- Commit `lib/firebase_options.dart`.
+- Decide explicitly whether `google-services.json` and
+  `GoogleService-Info.plist` are committed or ignored, then write the
+  same policy in `.gitignore`, `AGENTS.md`, and `docs/setup.md`.
+- Enable Firebase App Check (separate follow-up: `FIRE-10`) so committed
+  client config is not the only line of defense.
 
 **Acceptance criteria:**
-- [ ] `.gitignore` updated.
+- [ ] `.gitignore`, `AGENTS.md`, and `docs/setup.md` agree on the policy.
 - [ ] `firebase_options.dart` committed.
+- [ ] Decision recorded for Android/iOS client config files before FCM
+      work begins.
 - [ ] Follow-up issue opened for App Check (separate: `FIRE-10`).
 
 ## `FIRE-03` — `FirebaseAuthRepository`
@@ -369,8 +379,30 @@ schema in `docs/data-model.md`.
 
 **Acceptance criteria:**
 - [ ] `firebase/rules-tests/` with at least: worker-claim, worker-cannot-reassign,
-      worker-cannot-write-arbitrary-fields, manager-can-do-anything.
+      worker-cannot-write-arbitrary-fields, worker-cannot-read-draft-list,
+      inactive-user-cannot-read-or-write, manager-can-do-anything.
 - [ ] New CI job installs Node, runs `firebase emulators:exec`.
+
+## `INFRA-02` — Firebase Functions workspace + CI
+
+- **Type:** `type:infra` · **Phase:** `phase:1` · **Priority:** `priority:p1`
+- **Blocked by:** `FIRE-01`
+- **Owner:** agent
+
+**Description.** Phase 2 user admin and Phase 4 notifications both rely
+on Cloud Functions. Set up the Node/TypeScript workspace, local
+emulator flow, and CI before the first function feature so those later
+issues stay feature-sized instead of infrastructure-heavy.
+
+**Acceptance criteria:**
+- [ ] `firebase/functions/` scaffolded with `package.json`,
+      `tsconfig.json`, `src/`, and shared build/test scripts.
+- [ ] Local emulator workflow can run Firestore + Auth + Functions
+      together, and the steps are documented.
+- [ ] CI installs function dependencies and runs at least build + test
+      or smoke checks.
+- [ ] `docs/setup.md` documents the Blaze prerequisite and the local
+      Functions workflow.
 
 ## `FIRE-08` — Seed the first manager account
 
@@ -429,11 +461,13 @@ sections: "Picking lists", "Crops", "Users", later "Templates" and
 ## `MGMT-02` — Users admin (Windows)
 
 - **Type:** `type:feature` · **Phase:** `phase:2` · **Platform:** `platform:windows`
-- **Priority:** `priority:p0` · **Blocked by:** `MGMT-01`, `FIRE-05`
+- **Priority:** `priority:p0` · **Blocked by:** `MGMT-01`, `FIRE-05`, `FIRE-06`, `INFRA-02`
 
 **Description.** Manager lists users, creates new worker accounts
 (email + temporary password), edits display name / role, deactivates
-accounts.
+accounts. Deactivation is a two-part operation: disable the Firebase
+Auth account and set `users/{uid}.active = false` so rules and client
+queries can treat the account as inactive immediately.
 
 Creating a Firebase Auth user requires the Admin SDK. Two options:
 (a) ship a small Cloud Function `createWorker` that the manager calls
@@ -441,10 +475,16 @@ Creating a Firebase Auth user requires the Admin SDK. Two options:
 call from a desktop-only path — rejected (admin creds on a client).
 
 **Acceptance criteria:**
-- [ ] `firebase/functions/src/createWorker.ts` with auth check
-      (caller must be `role: manager`).
+- [ ] Manager-only callable Functions cover worker creation and
+      activation-state changes (`createWorker`, `setUserActive`, or
+      equivalent), each with an auth check requiring `role: manager`.
 - [ ] UI to list, invite, edit, deactivate.
-- [ ] Rules updated so deactivated users can't sign in / can't write.
+- [ ] `users/{uid}` schema updated with `active: bool`, and
+      `docs/data-model.md` documents the field.
+- [ ] Deactivate flow disables the Firebase Auth account and sets
+      `users/{uid}.active = false`.
+- [ ] Rules updated so inactive users can't read or write; disabled
+      accounts are rejected at sign-in by Firebase Auth.
 - [ ] Tests for Cloud Function (rule-tests or offline mocks).
 - [ ] ≥ 90 % coverage on the new feature.
 
@@ -475,6 +515,9 @@ workers).
 - [ ] Add row dialog with crop autocomplete.
 - [ ] Re-order rows (optional, `priority:p2`).
 - [ ] Publish / unpublish.
+- [ ] Completion flow is defined and implemented: only managers can mark
+      a list `completed`, and completed lists become read-only outside
+      history.
 - [ ] Delete list (draft only; published lists can only be completed).
 - [ ] Tests.
 
@@ -492,7 +535,8 @@ a searchable picker (important when worker count grows).
 - **Priority:** `priority:p0` · **Blocked by:** `FIRE-04`
 
 **Description.** Workers see `status == 'published'` lists ordered by
-`scheduledAt` (today's first). Drafts are manager-only.
+`scheduledAt` (today's first). Drafts are manager-only in both the UI
+query and Firestore rules.
 
 ## `MGMT-07` — End-of-phase: run one real day
 
@@ -566,7 +610,7 @@ messages.
 ## `FIRE-12` — Cloud Function: `onAssignmentChanged`
 
 - **Type:** `type:feature` · **Phase:** `phase:4` · **Priority:** `priority:p1`
-- **Blocked by:** `FIRE-11`, `FIRE-06`
+- **Blocked by:** `FIRE-11`, `FIRE-06`, `INFRA-02`
 
 **Description.** Firestore trigger on `pickingLists/*/items/*`: when
 `assignedTo` is added or the row's `quantity`/`note` changes while the
@@ -680,26 +724,16 @@ GUARD-01..08   (phase 0; block all feature work)
     │
     ▼
 FIRE-01 (human) ── FIRE-02 ── FIRE-03 ── FIRE-04 ── FIRE-06 (human) ── FIRE-07
-                                 │                        │
-                                 └── FIRE-05              └── FIRE-08 (human)
-                                                                │
-                                                                ▼
-                                                      MGMT-01 ── MGMT-02..06
-                                                                     │
-                                                                     ▼
-                                                      MGMT-07 (human: one real day)
-                                                                     │
-                                                                     ▼
-                                                      DATA-01 ∥ DATA-02 ∥ DATA-03
-                                                                     │
-                                                                     ▼
-                                                      FIRE-11 ── FIRE-12 ── FIRE-13
-                                                                     │
-                                                                     ▼
-                                                      UX-01..06
-                                                                     │
-                                                                     ▼
-                                                      OPS-01..05 (human-heavy)
+                             │                        │
+                             └── FIRE-05              └── FIRE-08 (human)
+FIRE-01 (human) ── INFRA-02
+FIRE-03 ── MGMT-01 ── MGMT-03 ── MGMT-04 ── MGMT-05
+FIRE-05 + FIRE-06 + INFRA-02 + MGMT-01 ── MGMT-02
+FIRE-04 ── MGMT-06
+MGMT-02..06 ── MGMT-07 (human: one real day)
+MGMT-04 ── DATA-01 ∥ DATA-02 ∥ DATA-03
+FIRE-11 + FIRE-06 + INFRA-02 ── FIRE-12 ── FIRE-13
+MGMT-07 ── UX-01..06 ── OPS-01..05 (human-heavy)
 ```
 
 # Human-only checklist (condensed)
@@ -707,7 +741,7 @@ FIRE-01 (human) ── FIRE-02 ── FIRE-03 ── FIRE-04 ── FIRE-06 (hum
 Issues tagged `requires:human`, in rough order:
 
 1. `GUARD-08` — Branch protection + CODEOWNERS.
-2. `FIRE-01` — Create Firebase project, `flutterfire configure`.
+2. `FIRE-01` — Create Firebase project, enable Blaze, run `flutterfire configure`.
 3. `FIRE-06` — Deploy initial rules + indexes.
 4. `FIRE-08` — Seed the first manager account.
 5. `FIRE-10` — Register apps for App Check.
@@ -721,7 +755,7 @@ Issues tagged `requires:human`, in rough order:
 # Converting to GitHub issues
 
 `INFRA-01` (below) will add a script `tool/sync_issues.dart` that
-reads this file, extracts each `### <ID> — Title` section, and
+reads this file, extracts each `## <ID> — Title` section, and
 creates a GitHub issue per entry with the labels listed. Dependencies
 become task-list references (`- [ ] Blocked by #<n>`) in the issue body.
 The stable IDs (`GUARD-01`, etc.) stay in the titles so this file and
@@ -744,3 +778,5 @@ GitHub remain linked.
 # Changelog of this roadmap
 
 - 2026-04-22: initial version, drafted alongside the POC commit.
+- 2026-04-22: clarified Firebase config policy, Functions sequencing,
+  draft/inactive-user security checks, and the list-completion lifecycle.
