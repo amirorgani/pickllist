@@ -6,6 +6,49 @@ on:
   pull_request:
 
 jobs:
+  pull_request_hygiene:
+    name: PR hygiene
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|test|refactor|chore):\ .+ ]]; then
+            echo "::error title=Invalid PR title::PR titles must start with feat:, fix:, docs:, test:, refactor:, or chore:."
+            exit 1
+          fi
+
+      - name: Warn on large PRs
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          diff_lines=$(git diff --numstat "$BASE_SHA" "$HEAD_SHA" | awk '($1 != "-" && $2 != "-") { added += $1; deleted += $2 } END { print added + deleted + 0 }')
+          echo "Changed lines: $diff_lines"
+          if (( diff_lines > 600 )); then
+            echo "::warning title=Large PR::This PR changes $diff_lines lines. Consider splitting it into smaller PRs."
+          fi
+
+      - name: Require tests when lib changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed_files=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if echo "$changed_files" | grep -q '^lib/'; then
+            if ! echo "$changed_files" | grep -q '^test/'; then
+              echo "::error title=Missing tests::This PR changes lib/ but does not touch test/."
+              exit 1
+            fi
+          fi
+
   flutter:
     name: Analyze & test
     runs-on: ubuntu-latest
