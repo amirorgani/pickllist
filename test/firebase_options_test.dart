@@ -22,10 +22,7 @@ void main() {
     });
 
     test('ios options carry the bundle id + client id needed for sign-in', () {
-      expect(
-        DefaultFirebaseOptions.ios.iosBundleId,
-        'com.pickllist.pickllist',
-      );
+      expect(DefaultFirebaseOptions.ios.iosBundleId, 'com.pickllist.pickllist');
       expect(DefaultFirebaseOptions.ios.iosClientId, isNotEmpty);
     });
   });
