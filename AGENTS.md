@@ -56,6 +56,8 @@ All repository work follows:
    docs/dependency notes, localization/platform notes, and `Self CR`.
 5. **Merge.** Merge only after required checks pass, self CR is documented, and
    manager feedback is incorporated or deferred to a follow-up issue.
+6. **Return to main.** After the PR is merged, check out `main` and update it
+   to the merged remote state before starting or ending further work.
 
 Do not code on `main`, start work without an issue, or open an unlinked PR.
 
