@@ -63,4 +63,5 @@ docs/                setup, architecture, data model
   abstraction, known gotchas.
 - [docs/data-model.md](docs/data-model.md) — Firestore collections +
   the security-rule rationale.
+- [docs/release.md](docs/release.md) — versioning, release steps, and rollback.
 - [docs/setup.md](docs/setup.md) — wiring a real Firebase project.
