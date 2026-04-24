@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: subosito/flutter-action@v2
         with:
@@ -21,6 +23,20 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Check dependency docs on pull requests
+        if: github.event_name == 'pull_request'
+        run: >
+          dart run tool/check_dependency_docs.dart
+          --base "${{ github.event.pull_request.base.sha }}"
+          --head "${{ github.event.pull_request.head.sha }}"
+
+      - name: Check dependency docs on pushes
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: >
+          dart run tool/check_dependency_docs.dart
+          --base "${{ github.event.before }}"
+          --head "${{ github.sha }}"
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
