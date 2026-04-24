@@ -93,6 +93,20 @@ jobs:
       - name: Run tests with coverage
         run: flutter test --coverage --reporter=expanded
 
+      - name: Check coverage ratchet on pull requests
+        if: github.event_name == 'pull_request'
+        run: >
+          dart run tool/check_coverage.dart
+          --base "${{ github.event.pull_request.base.sha }}"
+          --head "${{ github.event.pull_request.head.sha }}"
+
+      - name: Check coverage ratchet on pushes
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: >
+          dart run tool/check_coverage.dart
+          --base "${{ github.event.before }}"
+          --head "${{ github.sha }}"
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         if: always()
