@@ -18,8 +18,12 @@ jobs:
 
       - name: Validate PR title
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
         run: |
+          PR_TITLE=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER" --jq .title)
+          echo "PR title: $PR_TITLE"
           if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|test|refactor|chore):\ .+ ]]; then
             echo "::error title=Invalid PR title::PR titles must start with feat:, fix:, docs:, test:, refactor:, or chore:."
             exit 1
