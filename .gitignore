@@ -115,9 +115,12 @@ ui-debug.log
 .env
 .env.*
 !.env.example
+
+# Native Firebase client config — regenerated per-dev/CI via
+# `flutterfire configure`. `lib/firebase_options.dart` IS committed
+# (see docs/setup.md).
 google-services.json
 GoogleService-Info.plist
-firebase_options.dart
 
 # Node
 node_modules/
