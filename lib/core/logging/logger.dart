@@ -2,7 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:logging/logging.dart';
 
-/// App-wide logger configuration. Call [configureLogging] once at startup.
+/// App-wide logger configuration. Call [configureLogging] once at
+/// application startup, before any logging happens.
 void configureLogging({Level level = Level.INFO}) {
   Logger.root.level = level;
   Logger.root.onRecord.listen((record) {
