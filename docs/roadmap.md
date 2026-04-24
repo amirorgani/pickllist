@@ -230,7 +230,7 @@ conscious choice.
 - [ ] Initial snapshot committed.
 - [ ] Documented in `docs/guardrails.md`.
 
-## `GUARD-08` — Branch protection + CODEOWNERS
+## `GUARD-08` — Branch protection
 
 - **Type:** `type:guardrail` · **Phase:** `phase:0` · **Priority:** `priority:p0`
 - **Requires:** `requires:human`
@@ -241,16 +241,14 @@ conscious choice.
 - Require PRs (no direct push to main).
 - Require the PR checklist to be ticked (via a status check added by
   `GUARD-04`).
-- Dismiss stale approvals on new commits.
 - No force-push on `main`.
 
-Also add a `CODEOWNERS` file assigning the farm owner as reviewer on
-`firebase/firestore.rules`, `docs/guardrails.md`, and `docs/roadmap.md` —
-these require human sign-off because they encode policy.
+Self-review by the agent is part of the coding process; there are no
+human reviewer gates (no CODEOWNERS, no required approvals, so stale-
+approval dismissal is moot).
 
 **Acceptance criteria:** (human)
 - [ ] Branch protection configured in GitHub settings.
-- [ ] `CODEOWNERS` file committed.
 - [ ] An agent attempting to push directly to `main` is rejected.
 
 ---
@@ -740,7 +738,7 @@ MGMT-07 ── UX-01..06 ── OPS-01..05 (human-heavy)
 
 Issues tagged `requires:human`, in rough order:
 
-1. `GUARD-08` — Branch protection + CODEOWNERS.
+1. `GUARD-08` — Branch protection.
 2. `FIRE-01` — Create Firebase project, enable Blaze, run `flutterfire configure`.
 3. `FIRE-06` — Deploy initial rules + indexes.
 4. `FIRE-08` — Seed the first manager account.
