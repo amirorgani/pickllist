@@ -29,39 +29,52 @@ Seeded accounts:
 
 ## Wire up a real Firebase project
 
-**Do this when you're ready to leave the POC behind.**
+The project `picklist-by` already exists (see `firebase/.project-id`).
+`lib/firebase_options.dart` is committed, so a fresh clone can build
+for Windows without re-running `flutterfire configure`.
 
-1. Create the project at <https://console.firebase.google.com>. Turn on
-   Authentication (Email/Password provider) and Firestore (start in
-   production mode).
+### Client config policy
 
-2. From the repo root:
+| File | Committed? | Why |
+|------|-----------|-----|
+| `lib/firebase_options.dart` | Yes | Public config; needed for CI builds. Protected by App Check (`FIRE-10`) and Firestore rules (`FIRE-06`), not by obscurity. |
+| `android/app/google-services.json` | No | Regenerated deterministically by `flutterfire configure`. Every dev/CI runs it before an Android build. |
+| `ios/Runner/GoogleService-Info.plist` | No | Same reason. |
 
-   ```sh
-   firebase login
-   flutterfire configure --project=<your-project-id>
-   ```
+### Regenerate native client config (Android / iOS)
 
-   This writes `lib/firebase_options.dart` (gitignored).
+Only needed when you want to build for mobile:
 
-3. In `lib/bootstrap.dart`, replace the no-op `bootstrap` with a real
+```sh
+firebase login
+flutterfire configure --project=picklist-by
+```
+
+This (re-)writes `lib/firebase_options.dart` and drops the two native
+config files into `android/app/` and `ios/Runner/`. Don't stage the
+native files — `.gitignore` already excludes them. If `firebase_options.dart`
+regenerates with a meaningful diff on your machine, commit it — that's
+the expected update path when apps are added/removed.
+
+### Remaining wiring (tracked as issues)
+
+1. In `lib/bootstrap.dart`, replace the no-op `bootstrap` with a real
    `Firebase.initializeApp` call and add provider overrides for
    `FirebaseAuthRepository`, `FirestorePickingListRepository`, and
-   `FirestoreUserDirectoryRepository` (not yet implemented — see the
-   issue list).
+   `FirestoreUserDirectoryRepository` (`FIRE-03`, `FIRE-04`, `FIRE-05`).
 
-4. Deploy the rules and indexes:
+2. Deploy the rules and indexes (`FIRE-06`):
 
    ```sh
    cd firebase
-   firebase use <your-project-id>
+   firebase use picklist-by
    firebase deploy --only firestore:rules,firestore:indexes
    ```
 
-5. Provision the first manager account manually in the Firebase Auth
-   console, then create their `users/<uid>` document in Firestore with
-   `role: "manager"`. After that the manager creates workers from the
-   Windows app.
+3. Provision the first manager account (`FIRE-08`): create them in the
+   Firebase Auth console, then create their `users/<uid>` document in
+   Firestore with `role: "manager"`. After that the manager creates
+   workers from the Windows app.
 
 ## Local Firestore emulator
 

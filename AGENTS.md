@@ -68,9 +68,12 @@ flutter run                      # mobile/desktop device from IDE or CLI
 - **Tests alongside features.** Mirror the lib path:
   `lib/features/x/domain/foo.dart` → `test/features/x/domain/foo_test.dart`.
   Every repository gets tests of its happy + failure paths.
-- **Don't commit** `firebase_options.dart`, `google-services.json`,
-  `GoogleService-Info.plist`, or anything under `firebase/functions/node_modules/`.
-  They are `.gitignore`d.
+- **Firebase client config policy.** Commit `lib/firebase_options.dart`
+  (public config, needed for CI builds; protected by App Check — see
+  `FIRE-10`). Do **not** commit `google-services.json` or
+  `GoogleService-Info.plist` — those regenerate deterministically via
+  `flutterfire configure` and are `.gitignore`d. Also don't commit
+  anything under `firebase/functions/node_modules/`.
 
 ## Adding a new feature
 
@@ -86,14 +89,19 @@ flutter run                      # mobile/desktop device from IDE or CLI
 
 ## Firebase
 
-Not yet initialized. When the Firebase project is created:
+Project ID is recorded in `firebase/.project-id` (`picklist-by`).
+`lib/firebase_options.dart` is committed; native client config
+(`google-services.json`, `GoogleService-Info.plist`) is gitignored —
+regenerate it locally with `flutterfire configure --project=picklist-by`
+when you need to build for Android or iOS.
 
-1. `dart pub global activate flutterfire_cli`
-2. `flutterfire configure` → generates `lib/firebase_options.dart`
-3. In `lib/bootstrap.dart`, uncomment `Firebase.initializeApp` wiring.
-4. Implement `FirebaseAuthRepository`, `FirestorePickingListRepository`, etc.
-5. Override the fake providers in `bootstrap`'s `ProviderScope`.
-6. `firebase deploy --only firestore:rules,firestore:indexes`.
+Remaining Firebase wiring:
+
+1. In `lib/bootstrap.dart`, uncomment `Firebase.initializeApp` wiring
+   (`FIRE-03`).
+2. Implement `FirebaseAuthRepository`, `FirestorePickingListRepository`,
+   etc., and override the fake providers in `bootstrap`'s `ProviderScope`.
+3. `firebase deploy --only firestore:rules,firestore:indexes` (`FIRE-06`).
 
 See `docs/setup.md` for the full procedure.
 
