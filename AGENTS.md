@@ -1,127 +1,177 @@
 # AGENTS.md
 
-Instructions for AI coding agents working in this repository. Human
-contributors should also read this — it's the fastest onboarding doc.
+Operational rules for AI coding agents in Pickllist.
 
-## What this project is
+This repo is AI-operated. Assume no human will write or review code before it
+reaches users. Treat every "must" as a merge requirement. If a rule cannot be
+followed, document the blocker and do not mark the PR mergeable.
 
-Pickllist is a Flutter + Firebase app for managing crop-picking work
-on a farm. Workers use it on Android/iOS, the work manager uses it on
-Windows (with extra features: Excel import, templates, history).
+## Project
 
-Single-farm, multi-user, real-time sync.
+Pickllist is a Flutter + Firebase app for crop-picking work on a farm. Workers
+use Android/iOS; the farm manager uses Windows for extra features such as Excel
+import, templates, history, and user admin. Single-farm, multi-user,
+real-time sync.
 
-## Layout
+Layout:
 
-```
+```text
 lib/
-├── main.dart, app.dart, bootstrap.dart   # entry points
-├── core/                                 # cross-cutting: routing, theme, platform, logging, providers
-├── features/<feature>/
-│   ├── domain/        # pure Dart data classes + enums, no Flutter imports in /domain
-│   ├── data/          # repositories: abstract + fake + (later) firestore impl
-│   ├── application/   # Riverpod providers that expose data to UI
-│   └── presentation/  # screens + widgets
-└── l10n/              # ARB files + generated AppLocalizations
-test/                  # unit + widget tests mirroring lib/ layout
-firebase/              # firestore.rules, indexes, firebase.json
-.github/workflows/     # CI
-docs/                  # setup, architecture, data model
+  core/                 # routing, theme, platform, logging, shared providers
+  features/<feature>/
+    domain/             # pure Dart models and enums
+    data/               # abstract repos + fake + Firebase/Firestore impls
+    application/        # Riverpod providers
+    presentation/       # screens and widgets
+  l10n/                 # ARB files + generated localizations
+test/                   # mirrors lib/
+firebase/               # rules, indexes, firebase.json
+docs/                   # setup, architecture, data model, dependencies
 ```
 
-## Local commands
+## Default Working Mode
+
+- Default to working until the issue is complete. Do not pause for feedback
+  unless the next decision is genuinely blocked, the manager explicitly asks for
+  an interactive checkpoint, or manager testing is part of the acceptance
+  criteria.
+- For interactive work, keep the branch usable and let the manager test on that
+  branch. Incorporate feedback or move it to a follow-up issue before PR merge.
+- Ask concise questions only when requirements are unclear enough that guessing
+  would risk the wrong product behavior, data model, security rule, or platform
+  support.
+
+## Required Workflow
+
+All repository work follows:
+
+1. **Issue.** Create or update a GitHub issue before changing files. Capture
+   the user role/platform, problem, acceptance criteria, edge cases, and any
+   data, Firebase, localization, platform-gating, or test impact.
+2. **Branch.** Branch from the issue once it is clear enough to implement. Use
+   an issue-numbered name such as `feat/123-import-picking-template`.
+3. **Implement.** Keep the branch focused on one issue. Update the issue if
+   scope or acceptance criteria change.
+4. **PR.** Open a PR linked with `Closes #<issue>`. Include summary, tests,
+   docs/dependency notes, localization/platform notes, and `Self CR`.
+5. **Merge.** Merge only after required checks pass, self CR is documented, and
+   manager feedback is incorporated or deferred to a follow-up issue.
+
+Do not code on `main`, start work without an issue, or open an unlinked PR.
+
+## Engineering Rules
+
+- Check `git status --short --branch` before editing. Preserve unrelated user
+  changes; never revert work you did not make.
+- Read the files you change and their closest tests before editing.
+- Keep PRs small. Split broad work; explain unavoidable PRs over 600 changed
+  lines.
+- Prefer existing patterns over new abstractions. Leave no dead code,
+  placeholder implementations, broad TODOs, skipped tests, or unused APIs.
+- Do not claim a command passed unless you ran it in this workspace.
+- Treat failures as caused by your change until proven otherwise.
+- User-visible behavior, data contracts, security rules, dependencies, tests,
+  and docs must change together.
+
+## Architecture Rules
+
+- `domain/` is pure Dart: no Flutter, Firebase, Riverpod, platform, or
+  presentation imports. Enums live in `domain/`.
+- Keep null safety strict: no implicit dynamic, avoid unnecessary nullable
+  values, and avoid force unwraps when control flow can prove safety.
+- Models are immutable and explicit: required named params, value equality,
+  `copyWith`, and structured `toMap`/`fromMap` or existing generated serializers.
+- Repositories have an abstract interface plus fake and backend implementations.
+  Swap implementations through provider overrides at app startup.
+- Providers live in `application/`; presentation reads providers and does not
+  construct repositories.
+- In router redirects or non-widget callbacks, `ref.read` source providers, not
+  derived providers that may be stale unless watched.
+- All user-visible presentation strings must be in `app_en.arb`, `app_he.arb`,
+  and `app_th.arb`; run `flutter gen-l10n`.
+- Manager-only features must stay behind
+  `PlatformInfo.managerFeaturesAvailable` and must not appear on mobile routes.
+- Authorization belongs in `firebase/firestore.rules`, not only UI gates.
+- Commit `lib/firebase_options.dart`; do not commit `google-services.json`,
+  `GoogleService-Info.plist`, secrets, or `firebase/functions/node_modules/`.
+
+## Commands
+
+Run from the repo root:
 
 ```sh
 flutter pub get
-flutter gen-l10n                 # regenerate l10n after editing .arb files
-flutter analyze                  # static analysis (CI uses --fatal-infos)
+flutter gen-l10n
 dart format --set-exit-if-changed .
-flutter test                     # all tests
-flutter test --coverage          # with coverage
-flutter run                      # mobile/desktop device from IDE or CLI
+flutter analyze --fatal-infos
+dart run custom_lint
+flutter test --coverage
 ```
 
-## Conventions
+Use narrower tests while iterating, but before merge run the relevant full
+checks. Run `dart run custom_lint` for Riverpod/provider changes and preferably
+for every non-doc PR. Add emulator, build runner, smoke, or feature-specific
+checks when touched files require them.
 
-- **Null safety, no implicit-dynamic.** Prefer `required` named params.
-- **Domain is pure Dart.** `lib/features/*/domain/**` must not import
-  `package:flutter/*`. Enums live here, not in `presentation/`.
-- **Repositories are abstract + multiple impls.** Every feature that
-  talks to Firebase has an abstract class in `data/`, a `fake_*` impl
-  used in tests and the POC, and eventually a Firestore impl. Swapping
-  is done by overriding the repo's Riverpod provider at app startup
-  (see `lib/bootstrap.dart`).
-- **Providers live in `application/`.** Screens in `presentation/` only
-  read providers; they don't construct repositories.
-- **Riverpod caveat:** inside a router redirect or any non-widget
-  callback that uses `ref.read`, read the **source** provider, not a
-  downstream derived provider. Derived providers only recompute when
-  they're being watched; a `ref.read` on a derived provider can return
-  a stale cached value. See `lib/core/routing/app_router.dart` —
-  `redirect` reads `authStateProvider`, not `currentUserProvider`.
-- **Localization.** Every user-visible string goes in `lib/l10n/app_en.arb`
-  and mirrored into `app_he.arb` and `app_th.arb`. Run `flutter gen-l10n`
-  after edits. No hardcoded strings in `presentation/`.
-- **Platform gating.** Manager-only screens (Excel import, templates,
-  history, user admin) are gated by `PlatformInfo.managerFeaturesAvailable`,
-  which is true only on Windows. Don't add these routes to mobile.
-- **Tests alongside features.** Mirror the lib path:
-  `lib/features/x/domain/foo.dart` → `test/features/x/domain/foo_test.dart`.
-  Every repository gets tests of its happy + failure paths.
-- **Firebase client config policy.** Commit `lib/firebase_options.dart`
-  (public config, needed for CI builds; protected by App Check — see
-  `FIRE-10`). Do **not** commit `google-services.json` or
-  `GoogleService-Info.plist` — those regenerate deterministically via
-  `flutterfire configure` and are `.gitignore`d. Also don't commit
-  anything under `firebase/functions/node_modules/`.
+## Testing
 
-## Adding a new feature
+- Tests must prove behavior with meaningful assertions, not just execute lines.
+- Mirror paths: `lib/features/x/domain/foo.dart` ->
+  `test/features/x/domain/foo_test.dart`.
+- Every repository implementation needs happy-path and failure-path tests.
+- Changes to `lib/` must touch tests unless purely mechanical; document any
+  exception in the PR.
+- Widget changes need tests for visible states, important interactions,
+  localization-sensitive text, and platform gating.
+- Do not skip, weaken, or delete tests to make CI pass.
 
-1. Create `lib/features/<name>/{domain,data,application,presentation}/`.
-2. Model types in `domain/` — immutable, with `copyWith`, `==`, `toMap`/`fromMap`.
-3. Abstract repo in `data/<name>_repository.dart`, fake impl next to it.
-4. Providers in `application/<name>_providers.dart`.
-5. Screens in `presentation/`. Watch providers, never construct repos.
-6. Tests under `test/features/<name>/...`.
-7. Add strings to all three `.arb` files and run `flutter gen-l10n`.
-8. If Firebase-backed, add Firestore rules in `firebase/firestore.rules`
-   and indexes in `firebase/firestore.indexes.json`.
+## Dependencies And Firebase
 
-## Firebase
+- Add dependencies only when the SDK or existing packages cannot reasonably
+  solve the problem.
+- Any `pubspec.yaml` dependency change must update `docs/dependencies.md`; also
+  update `docs/architecture.md` if architecture or tooling changes.
+- After dependency changes, run `flutter pub get` and review `pubspec.lock`.
+- Regenerate native Firebase config locally when needed with
+  `flutterfire configure --project=picklist-by`; keep native config ignored.
+- Deploy rules/indexes with
+  `firebase deploy --only firestore:rules,firestore:indexes`.
 
-Project ID is recorded in `firebase/.project-id` (`picklist-by`).
-`lib/firebase_options.dart` is committed; native client config
-(`google-services.json`, `GoogleService-Info.plist`) is gitignored —
-regenerate it locally with `flutterfire configure --project=picklist-by`
-when you need to build for Android or iOS.
+## Mandatory Self CR
 
-Remaining Firebase wiring:
+Before a PR is ready or merged, run a critical self code review after final
+edits and required checks:
 
-1. In `lib/bootstrap.dart`, uncomment `Firebase.initializeApp` wiring
-   (`FIRE-03`).
-2. Implement `FirebaseAuthRepository`, `FirestorePickingListRepository`,
-   etc., and override the fake providers in `bootstrap`'s `ProviderScope`.
-3. `firebase deploy --only firestore:rules,firestore:indexes` (`FIRE-06`).
+1. Re-read the issue, this file, and relevant docs.
+2. Review the final diff with `git diff --stat origin/main...HEAD` and
+   `git diff origin/main...HEAD` for PR branches, or plain `git diff --stat`
+   and `git diff` for local-only work.
+3. Try to block the PR. Look for correctness bugs, weak tests, stale provider
+   reads, localization misses, platform-gating mistakes, Firestore rule gaps,
+   dependency drift, race conditions, null-safety holes, and unrelated changes.
+4. Fix blockers, rerun affected checks, and repeat self CR for non-trivial
+   fixes.
+5. Document `Self CR` in the PR: commands run, issues found/fixed, and residual
+   risks or "none known".
 
-See `docs/setup.md` for the full procedure.
+No documented self CR means no merge.
 
-## Definition of done
+## Definition Of Done
 
-A change is done when:
+- Issue -> branch -> PR -> merge was followed.
+- Acceptance criteria are met without unrelated changes.
+- Architecture, localization, platform, Firebase, dependency, and docs rules
+  above are satisfied.
+- Meaningful tests cover new or changed behavior.
+- `dart format --set-exit-if-changed .`, `flutter analyze --fatal-infos`, and
+  `flutter test --coverage` pass for code changes.
+- Critical self CR is documented and CI is green.
 
-1. `flutter analyze` is clean (no info-level issues either).
-2. `dart format --set-exit-if-changed .` passes.
-3. `flutter test` passes.
-4. New code has tests.
-5. All three `.arb` files have translations for any new strings.
-6. CI is green on the PR.
+## Do Not
 
-## Things not to do
-
-- Don't call `Firebase.initializeApp()` without guarded options — it
-  crashes until the options file is real.
-- Don't use `print()` — use the `logging` package via
-  `appLogger(name)` from `core/logging/logger.dart`.
-- Don't add new dependencies without updating `docs/architecture.md`.
-- Don't disable lints file-wide. `// ignore:` on individual lines is fine
-  when necessary, with a comment explaining why.
+- Do not call `Firebase.initializeApp()` without guarded real options.
+- Do not use `print()`; use `appLogger(name)`.
+- Do not hardcode user-visible strings in presentation code.
+- Do not disable lints file-wide.
+- Do not merge skipped tests, red CI, undocumented self CR, or unexplained local
+  command failures.
