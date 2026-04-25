@@ -97,6 +97,9 @@ jobs:
       - name: Static analysis
         run: flutter analyze --fatal-infos
 
+      - name: Check assertion quality
+        run: dart run tool/check_assertion_quality.dart
+
       - name: Generate localizations
         run: flutter gen-l10n
 
