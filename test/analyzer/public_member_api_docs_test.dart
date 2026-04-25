@@ -7,8 +7,10 @@ void main() {
     test('analysis_options.yaml enables public_member_api_docs', () {
       final yaml = File('analysis_options.yaml').readAsStringSync();
       expect(
-        RegExp(r'^\s*public_member_api_docs:\s*true', multiLine: true)
-            .hasMatch(yaml),
+        RegExp(
+          r'^\s*public_member_api_docs:\s*true',
+          multiLine: true,
+        ).hasMatch(yaml),
         isTrue,
         reason:
             'public_member_api_docs must be enabled globally; presentation '
