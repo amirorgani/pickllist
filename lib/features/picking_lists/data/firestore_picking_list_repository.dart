@@ -35,13 +35,10 @@ class FirestorePickingListRepository implements PickingListRepository {
 
   @override
   Stream<List<PickingItem>> watchItems(String listId) {
-    return _items(listId)
-        .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((d) => _toItem(d.id, d.data()))
-              .toList(growable: false),
-        );
+    return _items(listId).snapshots().map(
+      (snap) =>
+          snap.docs.map((d) => _toItem(d.id, d.data())).toList(growable: false),
+    );
   }
 
   @override
