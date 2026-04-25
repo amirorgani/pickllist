@@ -1,0 +1,26 @@
+{
+  "name": "pickllist-functions",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Firebase Cloud Functions workspace for Pickllist.",
+  "main": "lib/src/index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc --project tsconfig.json",
+    "test": "npm run build && node --test lib/test/health.test.js",
+    "smoke": "npm run build && node lib/test/smoke.js",
+    "emulators": "firebase emulators:start --config ../firebase.json --project picklist-by --only firestore,auth,functions",
+    "emulators:exec": "firebase emulators:exec --config ../firebase.json --project picklist-by --only firestore,auth,functions \"npm test\""
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "typescript": "^5.7.2"
+  }
+}

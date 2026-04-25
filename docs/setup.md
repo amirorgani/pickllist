@@ -86,14 +86,50 @@ firebase emulators:start
 ```
 
 The emulator UI runs at <http://127.0.0.1:4000>. Tell the app to hit
-it by setting env vars before `flutter run`:
+it by setting environment variables before `flutter run`.
+
+macOS/Linux shells:
 
 ```sh
 export FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
 export FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
 ```
 
+Windows PowerShell:
+
+```powershell
+$env:FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
+$env:FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
+```
+
 The Firebase impls will read these at startup.
+
+## Local Functions emulator
+
+Cloud Functions live in `firebase/functions/`. Local development uses the
+Firebase Emulator Suite, so billing is not required for local tests. Deploying
+Cloud Functions to the real `picklist-by` project does require the Firebase
+project to be on the Blaze plan.
+
+```sh
+cd firebase/functions
+npm ci
+npm run build
+npm test
+npm run smoke
+npm run emulators
+```
+
+`npm run emulators` starts Firestore, Auth, and Functions from the shared
+`firebase/firebase.json` config. The emulator UI remains at
+<http://127.0.0.1:4000>; Functions run on <http://127.0.0.1:5001>.
+
+For emulator-backed tests, run:
+
+```sh
+cd firebase/functions
+npm run emulators:exec
+```
 
 ## Issue sync from `docs/roadmap.md`
 
@@ -128,5 +164,7 @@ APK with `flutter build apk --debug` on a Linux runner and uploads
 `app-debug.apk` for smoke checks. Production Android keystore signing,
 Firebase App Distribution, and release deployment are separate release
 work, not part of the CI APK build. No secrets are required for the POC;
-once Firebase is wired we'll add a workflow job that runs the rules tests
-against the Firestore emulator.
+the Functions CI job installs `firebase/functions` dependencies, runs the
+TypeScript build, executes the Node test suite, and smoke-tests the compiled
+bundle without deploying. Once Firebase is wired we'll add a workflow job that
+runs the rules tests against the Firestore emulator.
