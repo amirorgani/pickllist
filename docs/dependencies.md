@@ -40,3 +40,15 @@ this file in the same PR.
 | `mocktail` | Lightweight mocking/stubbing in tests. |
 | `fake_cloud_firestore` | Firestore-backed tests without a live backend. |
 | `firebase_auth_mocks` | Firebase Auth test doubles for repository tests. |
+
+## Firebase Functions workspace
+
+The `firebase/functions/package.json` workspace is separate from Flutter's
+`pubspec.yaml` and is locked by `firebase/functions/package-lock.json`.
+
+| Dependency | Why it exists |
+|------------|---------------|
+| `firebase-admin` | Admin SDK used by Cloud Functions to access Firebase services with backend credentials. |
+| `firebase-functions` | Cloud Functions SDK and v2 trigger API for exported backend functions. |
+| `@types/node` | Node.js type definitions for the TypeScript Functions compiler. |
+| `typescript` | Compiles the Functions TypeScript source and tests into deployable JavaScript. |
