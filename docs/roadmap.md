@@ -251,6 +251,37 @@ approval dismissal is moot).
 - [ ] Branch protection configured in GitHub settings.
 - [ ] An agent attempting to push directly to `main` is rejected.
 
+## `GUARD-09` — Raise coverage ratchet to 90 %
+
+- **Type:** `type:guardrail` · **Phase:** `phase:0` · **Priority:** `priority:p1`
+- **Owner:** agent
+- **Blocked by:** `GUARD-01`
+
+**Description.** `GUARD-01` set the floor; this issue closes the gap to
+the 90 % long-term target documented in `docs/guardrails.md`. The
+ratchet only moves when `tool/coverage_baseline.json` is bumped, so
+this is a deliberate program of work rather than a single PR. Approach:
+
+1. Audit `flutter test --coverage` to find the 5–10 files with the
+   largest absolute uncovered-line counts. Prioritise `domain/` and
+   `data/` since they already have the 80 % per-file floor.
+2. Backfill focused tests for uncovered branches. Prefer specific-value
+   matchers (`equals`, `hasLength`, `containsAll`) over weak truthy
+   ones — `GUARD-05` will reject filler.
+3. Bump `overallPercent` in `tool/coverage_baseline.json` in the same
+   PR as the improvement so the new floor sticks.
+4. Repeat until overall coverage ≥ 90 %.
+
+**Acceptance criteria:**
+- [ ] `tool/coverage_baseline.json` `overallPercent` reaches 90.0.
+- [ ] Per-file 80 % floor under `lib/features/**/domain/` and
+      `lib/features/**/data/` is held throughout.
+- [ ] No `GUARD-05` regressions (new tests stay under the 30 %
+      truthy-matcher ratio).
+- [ ] `docs/guardrails.md` updated when the long-term target is
+      reached (drop the "pre-ship target is 90 %" line, replace with
+      the steady-state value).
+
 ---
 
 # Phase 1 — Firebase foundation
@@ -718,7 +749,7 @@ scheme, rollback procedure.
 # Dependency graph (abridged)
 
 ```
-GUARD-01..08   (phase 0; block all feature work)
+GUARD-01..09   (phase 0; block all feature work)
     │
     ▼
 FIRE-01 (human) ── FIRE-02 ── FIRE-03 ── FIRE-04 ── FIRE-06 (human) ── FIRE-07
