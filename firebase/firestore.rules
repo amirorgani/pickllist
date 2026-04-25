@@ -34,14 +34,21 @@ service cloud.firestore {
     }
 
     // ---------- picking lists ----------
+    // Workers see only published lists; managers see everything (incl.
+    // draft and completed). See docs/data-model.md.
     match /pickingLists/{listId} {
-      allow read:   if isSignedIn();
+      allow read:   if isManager()
+                    || (isSignedIn() && resource.data.status != 'draft');
       allow create: if isManager();
       allow update: if isManager();
       allow delete: if isManager();
 
       match /items/{itemId} {
-        allow read: if isSignedIn();
+        // Items inherit the parent list's visibility: a worker can only
+        // read item rows if they could read the parent list.
+        allow read: if isManager()
+                    || (isSignedIn()
+                        && get(/databases/$(database)/documents/pickingLists/$(listId)).data.status != 'draft');
 
         // Manager can do anything.
         allow write: if isManager();
