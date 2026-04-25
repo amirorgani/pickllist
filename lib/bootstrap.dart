@@ -13,6 +13,7 @@ import 'package:pickllist/features/auth/application/auth_providers.dart';
 import 'package:pickllist/features/auth/data/firebase_auth_repository.dart';
 import 'package:pickllist/firebase_options.dart';
 
+/// Initializes app services and starts the widget tree.
 Future<void> bootstrap({List<Override> overrides = const []}) async {
   WidgetsFlutterBinding.ensureInitialized();
   configureLogging();
@@ -37,6 +38,7 @@ Future<void> bootstrap({List<Override> overrides = const []}) async {
 }
 
 @visibleForTesting
+/// Resolves the Firebase options for supported configured platforms, if any.
 FirebaseOptions? configuredFirebaseOptionsForPlatform() {
   if (kIsWeb) {
     return null;
@@ -57,6 +59,7 @@ FirebaseOptions? configuredFirebaseOptionsForPlatform() {
 }
 
 @visibleForTesting
+/// Returns whether [options] look like real generated Firebase config.
 bool hasConfiguredFirebaseOptions(FirebaseOptions options) {
   return options.apiKey.isNotEmpty &&
       options.appId.isNotEmpty &&
