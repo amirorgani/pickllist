@@ -16,7 +16,6 @@ this file in the same PR.
 | `intl` | Date, number, and localization formatting. |
 | `freezed_annotation` | Immutable model annotations for future/generated data classes. |
 | `json_annotation` | JSON serialization annotations for model mapping. |
-| `meta` | Pure-Dart annotations such as `@immutable` for domain models. |
 | `collection` | Small collection helpers allowed in pure Dart layers. |
 | `cupertino_icons` | iOS-style icon set bundled with Flutter apps. |
 | `firebase_core` | Firebase app bootstrap once the real backend is enabled. |

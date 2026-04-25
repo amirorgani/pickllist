@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 
 /// Role granted to a signed-in app user.
 enum UserRole {
@@ -19,7 +18,6 @@ enum UserRole {
 
 /// A user in the farm's directory. Same shape for auth identity and for
 /// the "assignable worker" list shown in picking list rows.
-@immutable
 class AppUser {
   /// Creates a user directory entry.
   const AppUser({

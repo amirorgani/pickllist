@@ -14,6 +14,7 @@ analyzer:
 linter:
   rules:
     avoid_dynamic_calls: true
+    avoid_equals_and_hash_code_on_mutable_classes: false
     avoid_returning_this: true
     prefer_const_constructors: true
     public_member_api_docs: false

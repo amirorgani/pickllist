@@ -12,8 +12,6 @@
 
 import 'dart:io';
 
-import 'package:meta/meta.dart';
-
 const defaultLibDir = 'lib';
 const defaultSnapshotPath = 'test/api_surface.snapshot.txt';
 
@@ -29,7 +27,6 @@ Future<void> main(List<String> args) async {
   stdout.write(content);
 }
 
-@immutable
 class ApiSymbol implements Comparable<ApiSymbol> {
   const ApiSymbol({required this.path, required this.declaration});
 

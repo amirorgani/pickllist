@@ -29,8 +29,9 @@ void main() {
       violations,
       isEmpty,
       reason:
-          'domain files may only import other domain files, package:collection, '
-          'or dart:* — move framework dependencies up to presentation/data:\n'
+          'domain files may only import other domain files, '
+          'package:collection, or dart:* — move framework dependencies up to '
+          'presentation/data:\n'
           '${violations.join('\n')}',
     );
   });
@@ -54,7 +55,7 @@ void main() {
     );
   });
 
-  test('presentation files do not reach into another feature\'s data', () {
+  test("presentation files do not reach into another feature's data", () {
     final violations = <String>[];
     for (final file in _dartFilesIn(featuresDir, layer: 'presentation')) {
       final ownFeature = _featureOf(file);
@@ -95,14 +96,14 @@ bool _isAllowedDomainImport(String import) {
 }
 
 String? _featureOf(File file) {
-  final segments = file.path.replaceAll('\\', '/').split('/');
+  final segments = file.path.replaceAll(r'\', '/').split('/');
   final idx = segments.indexOf('features');
   if (idx < 0 || idx + 1 >= segments.length) return null;
   return segments[idx + 1];
 }
 
 String? _featureFromImport(String import) {
-  final prefix = 'package:pickllist/features/';
+  const prefix = 'package:pickllist/features/';
   if (!import.startsWith(prefix)) return null;
   final rest = import.substring(prefix.length);
   final slash = rest.indexOf('/');
@@ -115,7 +116,7 @@ Iterable<File> _dartFilesIn(Directory root, {required String layer}) sync* {
   for (final entity in root.listSync(recursive: true)) {
     if (entity is! File) continue;
     if (!entity.path.endsWith('.dart')) continue;
-    final normalised = entity.path.replaceAll('\\', '/');
+    final normalised = entity.path.replaceAll(r'\', '/');
     if (normalised.contains('/$layer/')) yield entity;
   }
 }
@@ -127,4 +128,4 @@ Iterable<String> _packageImports(File file) sync* {
   }
 }
 
-String _rel(File file) => file.path.replaceAll('\\', '/');
+String _rel(File file) => file.path.replaceAll(r'\', '/');

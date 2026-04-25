@@ -7,7 +7,8 @@ enum QuantityUnit {
   kg,
 
   /// Count boxes or crates.
-  boxes;
+  boxes
+  ;
 
   /// Parses a persisted enum [name], defaulting unknown values to [units].
   static QuantityUnit fromName(String name) => QuantityUnit.values.firstWhere(

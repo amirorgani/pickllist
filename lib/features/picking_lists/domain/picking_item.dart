@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:pickllist/features/picking_lists/domain/quantity_unit.dart';
 
 /// A single row in a picking list: one crop, how much to pick, and
@@ -6,7 +5,6 @@ import 'package:pickllist/features/picking_lists/domain/quantity_unit.dart';
 ///
 /// `difference` is derived from [pickedQuantity] and [quantity] and is
 /// positive when picked more than planned, negative when less.
-@immutable
 class PickingItem {
   /// Creates a picking row.
   const PickingItem({

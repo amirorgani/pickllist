@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 /// Lifecycle state of a manager-created picking list.
 enum PickingListStatus {
   /// Still being prepared by the manager.
@@ -19,7 +17,6 @@ enum PickingListStatus {
 
 /// A picking list the work manager assembles and publishes to workers.
 /// Items live in a subcollection — streamed separately.
-@immutable
 class PickingList {
   /// Creates a picking list header.
   const PickingList({
