@@ -95,6 +95,27 @@ export FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
 
 The Firebase impls will read these at startup.
 
+## Issue sync from `docs/roadmap.md`
+
+`tool/sync_issues.dart` mirrors each `## \`<ID>\` — Title` entry in
+`docs/roadmap.md` to a GitHub issue, creating any missing labels and
+toggling the `blocked` label based on whether all listed blockers are
+closed. Re-running it converges existing issues to the roadmap; it is
+idempotent — a second run with no roadmap edits is a no-op.
+
+```sh
+# Preview changes without touching GitHub.
+dart run tool/sync_issues.dart --dry-run
+
+# Apply changes against the default `amirorgani/pickllist` repo
+# (requires `gh auth login`).
+dart run tool/sync_issues.dart
+```
+
+The matching key is the roadmap ID prefix in the issue title (e.g.
+`GUARD-02`). Renaming the title is safe; deleting the prefix breaks the
+link and the next run will create a duplicate issue.
+
 ## CI
 
 GitHub Actions in `.github/workflows/ci.yml` runs on every push + PR:
