@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
 import 'package:pickllist/app.dart';
 import 'package:pickllist/core/logging/logger.dart';
 
@@ -14,7 +13,7 @@ import 'package:pickllist/core/logging/logger.dart';
 /// fake repository providers in [overrides] below.
 Future<void> bootstrap({List<Override> overrides = const []}) async {
   WidgetsFlutterBinding.ensureInitialized();
-  configureLogging(level: Level.INFO);
+  configureLogging();
   appLogger('bootstrap').info('Starting Pickllist POC');
 
   runApp(ProviderScope(overrides: overrides, child: const PickllistApp()));

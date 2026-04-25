@@ -17,4 +17,5 @@ void configureLogging({Level level = Level.INFO}) {
   });
 }
 
+/// Returns a named logger for a feature or subsystem.
 Logger appLogger(String name) => Logger(name);
