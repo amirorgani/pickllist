@@ -15,7 +15,7 @@ import 'dart:io';
 const _defaultRoadmapPath = 'docs/roadmap.md';
 const _defaultRepoSlug = 'amirorgani/pickllist';
 const _bodyHeader =
-    'Synced from [docs/roadmap.md]'
+    'Synced from [docs/roadmap.md] '
     '(https://github.com/amirorgani/pickllist/blob/main/docs/roadmap.md).';
 
 Future<void> main(List<String> args) async {
@@ -230,7 +230,7 @@ class RoadmapEntry {
 }
 
 String _extractRequiresLabel(String raw) {
-  final match = RegExp(r'`([^`]+)`').firstMatch(raw);
+  final match = RegExp('`([^`]+)`').firstMatch(raw);
   return match?.group(1) ?? 'requires:human';
 }
 
@@ -329,7 +329,7 @@ List<RoadmapEntry> parseRoadmap(String source) {
 Map<String, String> _parseMetadata(List<String> lines) {
   final result = <String, String>{};
   for (final line in lines) {
-    var rest = line.startsWith('- ') ? line.substring(2) : line;
+    final rest = line.startsWith('- ') ? line.substring(2) : line;
     final pieces = rest.split(' · ');
     for (final piece in pieces) {
       final keyMatch = RegExp(r'^\*\*([^:]+):\*\*\s*(.*)$').firstMatch(piece);
@@ -424,17 +424,13 @@ String renderBody(RoadmapEntry entry) {
     buffer
       ..writeln()
       ..writeln('**Description**');
-    for (final line in entry.descriptionLines) {
-      buffer.writeln(line);
-    }
+    entry.descriptionLines.forEach(buffer.writeln);
   }
   if (entry.acceptanceLines.isNotEmpty) {
     buffer
       ..writeln()
       ..writeln('**Acceptance Criteria**');
-    for (final line in entry.acceptanceLines) {
-      buffer.writeln(line);
-    }
+    entry.acceptanceLines.forEach(buffer.writeln);
   }
   if (entry.blockedByIssues.isNotEmpty) {
     buffer

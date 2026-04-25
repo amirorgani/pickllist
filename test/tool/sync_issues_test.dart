@@ -81,7 +81,7 @@ void main() {
     });
 
     test('expands wildcard blocked-by patterns', () {
-      final source =
+      const source =
           '$_sampleRoadmap'
           '\n## `GUARD-01` — Other guardrail\n\n'
           '- **Type:** `type:guardrail` · **Phase:** `phase:0` · '

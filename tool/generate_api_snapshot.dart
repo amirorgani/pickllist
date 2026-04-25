@@ -12,6 +12,8 @@
 
 import 'dart:io';
 
+import 'package:meta/meta.dart';
+
 const defaultLibDir = 'lib';
 const defaultSnapshotPath = 'test/api_surface.snapshot.txt';
 
@@ -27,8 +29,9 @@ Future<void> main(List<String> args) async {
   stdout.write(content);
 }
 
+@immutable
 class ApiSymbol implements Comparable<ApiSymbol> {
-  ApiSymbol({required this.path, required this.declaration});
+  const ApiSymbol({required this.path, required this.declaration});
 
   final String path;
   final String declaration;
@@ -59,14 +62,14 @@ String renderSnapshot(List<ApiSymbol> symbols) {
 
 Future<List<ApiSymbol>> collectPublicApi({required String libDir}) async {
   final root = Directory(libDir);
-  if (!await root.exists()) {
+  if (!root.existsSync()) {
     throw StateError('lib directory not found at $libDir');
   }
   final symbols = <ApiSymbol>[];
   await for (final entity in root.list(recursive: true)) {
     if (entity is! File) continue;
     if (!entity.path.endsWith('.dart')) continue;
-    final relative = entity.path.replaceAll('\\', '/');
+    final relative = entity.path.replaceAll(r'\', '/');
     if (_isExcluded(relative)) continue;
     final source = await entity.readAsString();
     symbols.addAll(extractSymbols(source: source, path: relative));
