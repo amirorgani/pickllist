@@ -11,6 +11,7 @@ lib/features/auth/domain/app_user.dart::enum UserRole
 lib/features/auth/domain/app_user.dart::extension AppUserListX
 lib/features/auth/presentation/login_screen.dart::class LoginScreen
 lib/features/picking_lists/data/fake_picking_list_repository.dart::class FakePickingListRepository
+lib/features/picking_lists/data/firestore_picking_list_repository.dart::class FirestorePickingListRepository
 lib/features/picking_lists/data/picking_list_repository.dart::abstract class PickingListRepository
 lib/features/picking_lists/data/picking_list_repository.dart::class RepositoryException
 lib/features/picking_lists/domain/picking_item.dart::class PickingItem
