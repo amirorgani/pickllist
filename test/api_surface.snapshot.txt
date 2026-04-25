@@ -22,4 +22,5 @@ lib/features/picking_lists/presentation/picking_lists_screen.dart::class Picking
 lib/features/picking_lists/presentation/widgets/picking_item_tile.dart::class PickingItemTile
 lib/features/picking_lists/presentation/widgets/quantity_unit_l10n.dart::extension QuantityUnitL10n
 lib/features/users/data/fake_user_directory_repository.dart::class FakeUserDirectoryRepository
+lib/features/users/data/firestore_user_directory_repository.dart::class FirestoreUserDirectoryRepository
 lib/features/users/data/user_directory_repository.dart::abstract class UserDirectoryRepository
