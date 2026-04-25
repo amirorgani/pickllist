@@ -58,10 +58,11 @@ the expected update path when apps are added/removed.
 
 ### Remaining wiring (tracked as issues)
 
-1. In `lib/bootstrap.dart`, replace the no-op `bootstrap` with a real
-   `Firebase.initializeApp` call and add provider overrides for
-   `FirebaseAuthRepository`, `FirestorePickingListRepository`, and
-   `FirestoreUserDirectoryRepository` (`FIRE-03`, `FIRE-04`, `FIRE-05`).
+1. `lib/bootstrap.dart` now initializes Firebase and overrides
+   `authRepositoryProvider` with `FirebaseAuthRepository` when supported
+   platforms have configured `FirebaseOptions` (`FIRE-03`). The
+   Firestore-backed picking-list and user-directory overrides are still
+   pending in `FIRE-04` and `FIRE-05`.
 
 2. Deploy the rules and indexes (`FIRE-06`):
 
