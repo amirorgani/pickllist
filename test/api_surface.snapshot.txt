@@ -4,6 +4,8 @@ lib/core/theme/app_theme.dart::class AppTheme
 lib/features/auth/data/auth_repository.dart::abstract class AuthRepository
 lib/features/auth/data/auth_repository.dart::class AuthException
 lib/features/auth/data/fake_auth_repository.dart::class FakeAuthRepository
+lib/features/auth/data/firebase_auth_repository.dart::class FirebaseAuthRepository
+lib/features/auth/data/firebase_auth_repository.dart::typedef AppUserBuilder
 lib/features/auth/domain/app_user.dart::class AppUser
 lib/features/auth/domain/app_user.dart::enum UserRole
 lib/features/auth/domain/app_user.dart::extension AppUserListX
