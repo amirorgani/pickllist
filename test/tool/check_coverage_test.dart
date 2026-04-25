@@ -54,8 +54,8 @@ void main() {
 
   group('CoverageReport.parse', () {
     test('normalizes paths and computes file and overall coverage', () {
-      final report = CoverageReport.parse('''
-SF:lib\\features\\auth\\data\\auth_repository.dart
+      final report = CoverageReport.parse(r'''
+SF:lib\features\auth\data\auth_repository.dart
 DA:1,1
 DA:2,0
 LF:2

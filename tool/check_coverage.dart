@@ -45,9 +45,7 @@ Future<void> main(List<String> args) async {
     return;
   }
 
-  for (final failure in result.failures) {
-    stderr.writeln(failure);
-  }
+  result.failures.forEach(stderr.writeln);
   exitCode = 1;
 }
 
@@ -200,8 +198,10 @@ CoverageCheckResult evaluateCoverage({
   if (baseBaseline != null &&
       baseline.overallPercent < baseBaseline.overallPercent) {
     failures.add(
-      'Coverage baseline ${baseline.overallPercent.toStringAsFixed(2)}% is below '
-      'base branch baseline ${baseBaseline.overallPercent.toStringAsFixed(2)}%.',
+      'Coverage baseline ${baseline.overallPercent.toStringAsFixed(2)}% '
+      'is below '
+      'base branch baseline '
+      '${baseBaseline.overallPercent.toStringAsFixed(2)}%.',
     );
   }
 
@@ -289,7 +289,7 @@ double percentage({required int linesHit, required int linesFound}) {
   return linesHit / linesFound * 100;
 }
 
-String normalizePath(String path) => path.replaceAll('\\', '/');
+String normalizePath(String path) => path.replaceAll(r'\', '/');
 
 String _nextValue(List<String> args, int index, String flag) {
   if (index >= args.length) {
