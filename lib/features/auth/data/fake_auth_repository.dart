@@ -6,6 +6,7 @@ import 'package:pickllist/features/auth/domain/app_user.dart';
 /// In-memory auth for the POC and tests. Seeded with a manager and a
 /// worker account so the app is usable without a Firebase project.
 class FakeAuthRepository implements AuthRepository {
+  /// Creates the seeded fake auth repository.
   FakeAuthRepository() : _credentials = _defaultSeed() {
     _controller = StreamController<AppUser?>.broadcast(
       onListen: () => _controller.add(_currentUser),
@@ -44,31 +45,32 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(null);
   }
 
+  /// Returns all seeded users for fake user-directory lookups.
   List<AppUser> allUsers() =>
       _credentials.values.map((c) => c.user).toList(growable: false);
 
   static Map<String, _FakeCredential> _defaultSeed() => {
-    'manager@farm.test': _FakeCredential(
+    'manager@farm.test': const _FakeCredential(
       password: 'password123',
-      user: const AppUser(
+      user: AppUser(
         id: 'u_manager',
         email: 'manager@farm.test',
         displayName: 'Maya Manager',
         role: UserRole.manager,
       ),
     ),
-    'worker@farm.test': _FakeCredential(
+    'worker@farm.test': const _FakeCredential(
       password: 'password123',
-      user: const AppUser(
+      user: AppUser(
         id: 'u_worker',
         email: 'worker@farm.test',
         displayName: 'Wendy Worker',
         role: UserRole.worker,
       ),
     ),
-    'worker2@farm.test': _FakeCredential(
+    'worker2@farm.test': const _FakeCredential(
       password: 'password123',
-      user: const AppUser(
+      user: AppUser(
         id: 'u_worker2',
         email: 'worker2@farm.test',
         displayName: 'Wattana Worker',

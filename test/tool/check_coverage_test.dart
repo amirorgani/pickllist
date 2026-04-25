@@ -54,8 +54,8 @@ void main() {
 
   group('CoverageReport.parse', () {
     test('normalizes paths and computes file and overall coverage', () {
-      final report = CoverageReport.parse('''
-SF:lib\\features\\auth\\data\\auth_repository.dart
+      final report = CoverageReport.parse(r'''
+SF:lib\features\auth\data\auth_repository.dart
 DA:1,1
 DA:2,0
 LF:2
@@ -249,6 +249,24 @@ end_of_record
         isFalse,
       );
       expect(isThresholdedPath('lib/core/router.dart'), isFalse);
+    });
+  });
+
+  group('isSubstantiveDartDiffLine', () {
+    test('ignores documentation, imports, annotations, and punctuation', () {
+      expect(isSubstantiveDartDiffLine('/// Public API docs.'), isFalse);
+      expect(
+        isSubstantiveDartDiffLine("import 'package:meta/meta.dart';"),
+        isFalse,
+      );
+      expect(isSubstantiveDartDiffLine('show FakeRepository;'), isFalse);
+      expect(isSubstantiveDartDiffLine('@immutable'), isFalse);
+      expect(isSubstantiveDartDiffLine(');'), isFalse);
+    });
+
+    test('keeps executable declarations and expressions', () {
+      expect(isSubstantiveDartDiffLine('final id = _nextId();'), isTrue);
+      expect(isSubstantiveDartDiffLine('String get code => _code;'), isTrue);
     });
   });
 }

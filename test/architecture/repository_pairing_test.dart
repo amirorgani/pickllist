@@ -32,7 +32,7 @@ void main() {
         final fakeName = 'Fake$name';
         if (!declarations.containsKey(fakeName)) {
           orphans.add(
-            '${entry.value.path.replaceAll('\\', '/')}: '
+            '${entry.value.path.replaceAll(r'\', '/')}: '
             '$name has no $fakeName sibling in the same directory',
           );
         }

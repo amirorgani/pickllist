@@ -36,6 +36,13 @@ void main() {
     );
   });
 
+  test('AuthException string includes the stable message', () {
+    expect(
+      const AuthException('invalid-credentials').toString(),
+      'AuthException: invalid-credentials',
+    );
+  });
+
   test('signIn is case-insensitive on email', () async {
     final user = await repo.signIn(
       email: 'MANAGER@FARM.TEST',

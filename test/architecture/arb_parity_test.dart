@@ -24,7 +24,7 @@ void main() {
     final perFile = <String, Set<String>>{};
     for (final f in files) {
       final raw = jsonDecode(f.readAsStringSync()) as Map<String, dynamic>;
-      perFile[f.path.replaceAll('\\', '/')] = raw.keys
+      perFile[f.path.replaceAll(r'\', '/')] = raw.keys
           .where((k) => !k.startsWith('@'))
           .toSet();
     }
@@ -46,7 +46,10 @@ void main() {
       reason:
           'ARB files have drifted out of parity. Add the missing keys '
           '(or remove them everywhere):\n'
-          '${missingPerFile.entries.map((e) => '  ${e.key}: missing ${e.value.toList()..sort()}').join('\n')}',
+          '${missingPerFile.entries.map((e) {
+            final missingKeys = e.value.toList()..sort();
+            return '  ${e.key}: missing $missingKeys';
+          }).join('\n')}',
     );
   });
 }

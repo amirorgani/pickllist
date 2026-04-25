@@ -23,7 +23,7 @@ void main() {
 
   group('extractSymbols', () {
     test('captures the canonical declaration keywords', () {
-      final source = '''
+      const source = '''
 class Foo {}
 abstract class Bar {}
 sealed class Baz {}
@@ -54,7 +54,7 @@ class _Private {}
     });
 
     test('strips inheritance, generics, and trailing braces', () {
-      final source = '''
+      const source = '''
 class Generic<T extends Object?> with Mixed implements Foo {}
 class WithBody { void m() {} }
 ''';
@@ -65,7 +65,7 @@ class WithBody { void m() {} }
     });
 
     test('ignores comments and indented declarations', () {
-      final source = '''
+      const source = '''
 // class CommentedOut {}
    class Indented {}
 ''';
@@ -77,9 +77,9 @@ class WithBody { void m() {} }
   group('renderSnapshot', () {
     test('sorts symbols alphabetically by their full line', () {
       final unsorted = [
-        ApiSymbol(path: 'lib/b.dart', declaration: 'class B'),
-        ApiSymbol(path: 'lib/a.dart', declaration: 'class Z'),
-        ApiSymbol(path: 'lib/a.dart', declaration: 'class A'),
+        const ApiSymbol(path: 'lib/b.dart', declaration: 'class B'),
+        const ApiSymbol(path: 'lib/a.dart', declaration: 'class Z'),
+        const ApiSymbol(path: 'lib/a.dart', declaration: 'class A'),
       ];
       final rendered = renderSnapshot(unsorted);
       expect(

@@ -17,7 +17,7 @@ void main() {
       if (_isGenerated(file.path)) continue;
       final count = _countSignificantLines(file.readAsStringSync());
       if (count > _maxLines) {
-        offenders[file.path.replaceAll('\\', '/')] = count;
+        offenders[file.path.replaceAll(r'\', '/')] = count;
       }
     }
     expect(
@@ -26,13 +26,15 @@ void main() {
       reason:
           'Files exceed the $_maxLines-line ceiling. Decompose into focused '
           'units (extract widgets, split repos by aggregate, etc.):\n'
-          '${offenders.entries.map((e) => '  ${e.key}: ${e.value} lines').join('\n')}',
+          '${offenders.entries.map((e) {
+            return '  ${e.key}: ${e.value} lines';
+          }).join('\n')}',
     );
   });
 }
 
 bool _isGenerated(String path) {
-  final normalised = path.replaceAll('\\', '/');
+  final normalised = path.replaceAll(r'\', '/');
   if (normalised.endsWith('.g.dart')) return true;
   if (normalised.endsWith('.freezed.dart')) return true;
   if (normalised.endsWith('.gr.dart')) return true;

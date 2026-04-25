@@ -30,7 +30,7 @@ this file in the same PR.
 |------------|---------------|
 | `flutter_test` | Unit and widget test framework. |
 | `integration_test` | Flutter integration test harness. |
-| `flutter_lints` | Current baseline lint rules until stricter guardrails land. |
+| `very_good_analysis` | Strict Dart and Flutter lint baseline for analyzer guardrails. |
 | `build_runner` | Code generation runner for Dart builders. |
 | `freezed` | Generates immutable classes and helpers from annotations. |
 | `json_serializable` | Generates JSON serializers from annotations. |

@@ -10,7 +10,7 @@ void main() {
     quantity: 100,
     unit: QuantityUnit.kg,
     pickedQuantity: picked,
-    pickedAt: picked == null ? null : DateTime(2026, 1, 1),
+    pickedAt: picked == null ? null : DateTime(2026),
   );
 
   group('PickingItem.difference', () {

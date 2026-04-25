@@ -10,7 +10,7 @@ import 'package:pickllist/features/users/application/user_directory_providers.da
 import 'package:pickllist/l10n/generated/app_localizations.dart';
 
 class PickingItemTile extends ConsumerWidget {
-  const PickingItemTile({super.key, required this.listId, required this.item});
+  const PickingItemTile({required this.listId, required this.item, super.key});
 
   final String listId;
   final PickingItem item;
@@ -132,7 +132,7 @@ class _ActionsRow extends ConsumerWidget {
         title: Text(l.reassign),
         children: [
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, null),
+            onPressed: () => Navigator.pop(ctx),
             child: Text(l.unassigned),
           ),
           for (final u in users.where(
@@ -231,7 +231,8 @@ class _PickedSummary extends StatelessWidget {
         Text(l.completedAt(timeFmt.format(item.pickedAt!))),
         const SizedBox(width: 16),
         Text(
-          '${l.actualQuantity}: ${numberFmt.format(item.pickedQuantity)} ${item.unit.localized(context)}',
+          '${l.actualQuantity}: ${numberFmt.format(item.pickedQuantity)} '
+          '${item.unit.localized(context)}',
         ),
         const Spacer(),
         if (diffText.isNotEmpty)

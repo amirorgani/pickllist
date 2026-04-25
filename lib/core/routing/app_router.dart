@@ -11,12 +11,13 @@ import 'package:pickllist/features/picking_lists/presentation/picking_lists_scre
 /// including `fireImmediately` so the initial state counts.
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ValueNotifier<int>(0);
-  ref.listen(
-    authStateProvider,
-    (_, _) => refreshListenable.value++,
-    fireImmediately: true,
-  );
-  ref.onDispose(refreshListenable.dispose);
+  ref
+    ..listen(
+      authStateProvider,
+      (_, _) => refreshListenable.value++,
+      fireImmediately: true,
+    )
+    ..onDispose(refreshListenable.dispose);
 
   return GoRouter(
     initialLocation: '/',
