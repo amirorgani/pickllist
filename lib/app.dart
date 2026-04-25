@@ -1,3 +1,8 @@
+// Presentation/application layer — public_member_api_docs is enforced
+// on lib/core/, lib/features/*/domain/, and lib/features/*/data/ only,
+// per GUARD-02. Widget classes don't need docstrings on every member.
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickllist/core/providers/locale_provider.dart';

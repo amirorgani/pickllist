@@ -1,3 +1,7 @@
+// Presentation layer — GUARD-02 scopes public_member_api_docs to
+// core/domain/data only.
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
