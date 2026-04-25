@@ -1,3 +1,7 @@
+// Application layer — GUARD-02 scopes public_member_api_docs to
+// core/domain/data only.
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickllist/features/picking_lists/data/fake_picking_list_repository.dart';
 import 'package:pickllist/features/picking_lists/data/picking_list_repository.dart';

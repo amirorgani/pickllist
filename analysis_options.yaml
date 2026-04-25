@@ -17,6 +17,6 @@ linter:
     avoid_equals_and_hash_code_on_mutable_classes: false
     avoid_returning_this: true
     prefer_const_constructors: true
-    public_member_api_docs: false
+    public_member_api_docs: true
     require_trailing_commas: true
     unreachable_from_main: false

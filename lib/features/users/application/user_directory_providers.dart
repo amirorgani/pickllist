@@ -1,3 +1,7 @@
+// Application layer — GUARD-02 scopes public_member_api_docs to
+// core/domain/data only.
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickllist/features/auth/application/auth_providers.dart';
 import 'package:pickllist/features/auth/data/fake_auth_repository.dart';
