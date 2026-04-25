@@ -42,6 +42,34 @@ noisy to be useful below that. When the check fails, the fix is to replace
 weak assertions with assertions on specific values (e.g. `equals(...)`,
 `hasLength(...)`, `containsAll([...])`) rather than raising the threshold.
 
+## Architectural fitness tests
+
+`test/architecture/` parses source files and asserts layering invariants
+that are easy to violate accidentally and expensive to unwind later.
+Each rule lives in its own test file so failures point at exactly which
+invariant slipped:
+
+- **`layer_boundaries_test.dart`** — `lib/features/*/domain/` may import
+  only other domain files, `package:collection`, or `dart:*`; data files
+  must not depend on presentation; presentation files may not reach into
+  another feature's `data/` directly (collaborate via `application/`).
+- **`file_size_test.dart`** — no hand-written file under `lib/` may
+  exceed 400 significant lines (blank lines and comments excluded).
+  Generated files (`*.g.dart`, `*.freezed.dart`, `lib/l10n/generated/`,
+  `lib/firebase_options.dart`) are skipped.
+- **`arb_parity_test.dart`** — every locale ARB under `lib/l10n/`
+  defines the same set of translation keys (metadata `@…` keys are
+  ignored). Drift fails CI with the missing keys per file.
+- **`repository_pairing_test.dart`** — every abstract repository in
+  `lib/features/*/data/` has a `Fake*` sibling in the same directory,
+  so the test surface stays honest.
+
+To add a new architectural rule, drop a file under `test/architecture/`
+that walks `lib/` (or another scope), asserts the invariant, and emits
+a `reason:` message that names the offending files. Keep each rule in
+its own test file — a single mega-test that breaks on every kind of
+violation is harder to triage.
+
 ## Public API surface snapshot
 
 `test/api_surface_test.dart` walks every `.dart` file under `lib/`, extracts

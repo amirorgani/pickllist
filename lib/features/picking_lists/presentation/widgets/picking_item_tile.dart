@@ -5,6 +5,7 @@ import 'package:pickllist/features/auth/application/auth_providers.dart';
 import 'package:pickllist/features/auth/domain/app_user.dart';
 import 'package:pickllist/features/picking_lists/application/picking_list_providers.dart';
 import 'package:pickllist/features/picking_lists/domain/picking_item.dart';
+import 'package:pickllist/features/picking_lists/presentation/widgets/quantity_unit_l10n.dart';
 import 'package:pickllist/features/users/application/user_directory_providers.dart';
 import 'package:pickllist/l10n/generated/app_localizations.dart';
 
