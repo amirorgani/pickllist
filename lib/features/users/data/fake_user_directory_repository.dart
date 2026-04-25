@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:pickllist/features/auth/data/fake_auth_repository.dart';
 import 'package:pickllist/features/auth/domain/app_user.dart';
 import 'package:pickllist/features/users/data/user_directory_repository.dart';
 
+/// User directory backed by the fake auth repository seed data.
 class FakeUserDirectoryRepository implements UserDirectoryRepository {
+  /// Creates a fake user directory from seeded auth data.
   FakeUserDirectoryRepository(this._auth);
 
   final FakeAuthRepository _auth;
@@ -18,10 +21,6 @@ class FakeUserDirectoryRepository implements UserDirectoryRepository {
 
   @override
   Future<AppUser?> userById(String id) async {
-    try {
-      return _auth.allUsers().firstWhere((u) => u.id == id);
-    } catch (_) {
-      return null;
-    }
+    return _auth.allUsers().firstWhereOrNull((u) => u.id == id);
   }
 }
