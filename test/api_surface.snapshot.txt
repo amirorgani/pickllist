@@ -1,0 +1,22 @@
+lib/app.dart::class PickllistApp
+lib/core/platform/platform_info.dart::class PlatformInfo
+lib/core/theme/app_theme.dart::class AppTheme
+lib/features/auth/data/auth_repository.dart::abstract class AuthRepository
+lib/features/auth/data/auth_repository.dart::class AuthException
+lib/features/auth/data/fake_auth_repository.dart::class FakeAuthRepository
+lib/features/auth/domain/app_user.dart::class AppUser
+lib/features/auth/domain/app_user.dart::enum UserRole
+lib/features/auth/domain/app_user.dart::extension AppUserListX
+lib/features/auth/presentation/login_screen.dart::class LoginScreen
+lib/features/picking_lists/data/fake_picking_list_repository.dart::class FakePickingListRepository
+lib/features/picking_lists/data/picking_list_repository.dart::abstract class PickingListRepository
+lib/features/picking_lists/data/picking_list_repository.dart::class RepositoryException
+lib/features/picking_lists/domain/picking_item.dart::class PickingItem
+lib/features/picking_lists/domain/picking_list.dart::class PickingList
+lib/features/picking_lists/domain/picking_list.dart::enum PickingListStatus
+lib/features/picking_lists/domain/quantity_unit.dart::enum QuantityUnit
+lib/features/picking_lists/presentation/picking_list_detail_screen.dart::class PickingListDetailScreen
+lib/features/picking_lists/presentation/picking_lists_screen.dart::class PickingListsScreen
+lib/features/picking_lists/presentation/widgets/picking_item_tile.dart::class PickingItemTile
+lib/features/users/data/fake_user_directory_repository.dart::class FakeUserDirectoryRepository
+lib/features/users/data/user_directory_repository.dart::abstract class UserDirectoryRepository
