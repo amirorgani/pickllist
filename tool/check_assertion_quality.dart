@@ -146,7 +146,7 @@ Future<List<FileSource>> _readAll(List<File> files) async {
   final out = <FileSource>[];
   for (final file in files) {
     final source = await file.readAsString();
-    out.add(FileSource(path: file.path.replaceAll('\\', '/'), source: source));
+    out.add(FileSource(path: file.path.replaceAll(r'\', '/'), source: source));
   }
   return out;
 }
@@ -192,7 +192,7 @@ List<String> _collectMatchers(String source) {
     final args = _splitTopLevelArgs(source, start);
     if (args.length < 2) continue;
     final matcher = args[1].trim();
-    final identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').firstMatch(matcher);
+    final identifier = RegExp('^[A-Za-z_][A-Za-z0-9_]*').firstMatch(matcher);
     matchers.add(identifier?.group(0) ?? matcher);
   }
   return matchers;
@@ -263,7 +263,7 @@ String _stripCommentsAndStrings(String source) {
       }
       i++;
       while (i < source.length && source[i] != quote) {
-        if (source[i] == '\\' && i + 1 < source.length) i++;
+        if (source[i] == r'\' && i + 1 < source.length) i++;
         i++;
       }
       i++;

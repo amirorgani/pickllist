@@ -40,7 +40,7 @@ expect(
     });
 
     test('ignores expects inside comments and string literals', () {
-      const source = r'''
+      const source = '''
 // expect(buried, isTrue);
 final s = "expect(also, isTrue)";
 expect(real, equals(1));
