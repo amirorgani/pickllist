@@ -66,6 +66,17 @@ void main() {
     );
   });
 
+  test('RepositoryException string includes code and message', () {
+    expect(
+      const RepositoryException('already-assigned', 'Use reassign').toString(),
+      'RepositoryException(already-assigned: Use reassign)',
+    );
+    expect(
+      const RepositoryException('list-not-found').toString(),
+      'RepositoryException(list-not-found)',
+    );
+  });
+
   test('claimItem is idempotent when the same user re-claims', () async {
     final lists = await repo.watchLists().first;
     final listId = lists.single.id;

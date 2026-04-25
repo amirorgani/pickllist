@@ -239,7 +239,7 @@ Future<List<String>> changedFilesBetween({
 }) async {
   final result = await Process.run('git', [
     'diff',
-    '--name-only',
+    '--unified=0',
     '--diff-filter=ACMRT',
     baseRef,
     headRef,
@@ -248,17 +248,46 @@ Future<List<String>> changedFilesBetween({
   if (result.exitCode != 0) {
     throw ProcessException(
       'git',
-      ['diff', '--name-only', '--diff-filter=ACMRT', baseRef, headRef],
+      ['diff', '--unified=0', '--diff-filter=ACMRT', baseRef, headRef],
       result.stderr.toString(),
       result.exitCode,
     );
   }
 
-  return const LineSplitter()
-      .convert(result.stdout.toString())
-      .map(normalizePath)
-      .where((path) => path.isNotEmpty)
-      .toList(growable: false);
+  final changedFiles = <String>{};
+  String? currentPath;
+  var currentHasSubstantiveDartChange = false;
+
+  void finishCurrentFile() {
+    final path = currentPath;
+    if (path == null) return;
+    if (!isThresholdedPath(path) || currentHasSubstantiveDartChange) {
+      changedFiles.add(path);
+    }
+  }
+
+  for (final line in const LineSplitter().convert(result.stdout.toString())) {
+    if (line.startsWith('diff --git ')) {
+      finishCurrentFile();
+      currentPath = null;
+      currentHasSubstantiveDartChange = false;
+      continue;
+    }
+    if (line.startsWith('+++ b/')) {
+      currentPath = normalizePath(line.substring('+++ b/'.length));
+      continue;
+    }
+    final path = currentPath;
+    if (path == null || !isThresholdedPath(path)) continue;
+    if (line.startsWith('+++') || line.startsWith('---')) continue;
+    if (!line.startsWith('+') && !line.startsWith('-')) continue;
+    if (isSubstantiveDartDiffLine(line.substring(1))) {
+      currentHasSubstantiveDartChange = true;
+    }
+  }
+  finishCurrentFile();
+
+  return changedFiles.toList(growable: false);
 }
 
 Future<CoverageBaseline?> readBaselineAtRef({
@@ -279,6 +308,22 @@ bool isThresholdedPath(String path) {
   return normalized.startsWith('lib/features/') &&
       (normalized.contains('/domain/') || normalized.contains('/data/')) &&
       normalized.endsWith('.dart');
+}
+
+bool isSubstantiveDartDiffLine(String line) {
+  final trimmed = line.trim();
+  if (trimmed.isEmpty) return false;
+  if (trimmed.startsWith('//')) return false;
+  if (trimmed.startsWith('/*')) return false;
+  if (trimmed.startsWith('*')) return false;
+  if (trimmed.startsWith('*/')) return false;
+  if (trimmed.startsWith('import ')) return false;
+  if (trimmed.startsWith('export ')) return false;
+  if (trimmed.startsWith('show ')) return false;
+  if (trimmed.startsWith('hide ')) return false;
+  if (trimmed.startsWith('@')) return false;
+  if (RegExp(r'^[{}()[\],;]+$').hasMatch(trimmed)) return false;
+  return true;
 }
 
 double percentage({required int linesHit, required int linesFound}) {

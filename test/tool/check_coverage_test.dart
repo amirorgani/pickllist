@@ -251,4 +251,22 @@ end_of_record
       expect(isThresholdedPath('lib/core/router.dart'), isFalse);
     });
   });
+
+  group('isSubstantiveDartDiffLine', () {
+    test('ignores documentation, imports, annotations, and punctuation', () {
+      expect(isSubstantiveDartDiffLine('/// Public API docs.'), isFalse);
+      expect(
+        isSubstantiveDartDiffLine("import 'package:meta/meta.dart';"),
+        isFalse,
+      );
+      expect(isSubstantiveDartDiffLine('show FakeRepository;'), isFalse);
+      expect(isSubstantiveDartDiffLine('@immutable'), isFalse);
+      expect(isSubstantiveDartDiffLine(');'), isFalse);
+    });
+
+    test('keeps executable declarations and expressions', () {
+      expect(isSubstantiveDartDiffLine('final id = _nextId();'), isTrue);
+      expect(isSubstantiveDartDiffLine('String get code => _code;'), isTrue);
+    });
+  });
 }
