@@ -16,7 +16,11 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: PickllistApp()));
     await tester.pumpAndSettle();
 
-    // Defaults already filled in by LoginScreen for the POC.
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'manager@farm.test',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
     await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
 
