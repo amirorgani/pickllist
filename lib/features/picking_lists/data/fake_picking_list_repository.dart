@@ -9,6 +9,7 @@ import 'package:pickllist/features/picking_lists/domain/quantity_unit.dart';
 /// multiple screens within the same process stay in sync — good enough
 /// to demo the "live updates" UX before Firestore is wired.
 class FakePickingListRepository implements PickingListRepository {
+  /// Creates the seeded fake picking-list repository.
   FakePickingListRepository() {
     _seed();
   }
@@ -47,7 +48,7 @@ class FakePickingListRepository implements PickingListRepository {
   Stream<List<PickingItem>> watchItems(String listId) async* {
     final ctrl = _itemCtrls.putIfAbsent(
       listId,
-      () => StreamController<List<PickingItem>>.broadcast(),
+      StreamController<List<PickingItem>>.broadcast,
     );
     yield List.unmodifiable(_itemsByList[listId] ?? const []);
     yield* ctrl.stream;
@@ -179,7 +180,7 @@ class FakePickingListRepository implements PickingListRepository {
     _lists[listId] = PickingList(
       id: listId,
       name: 'Thursday morning pick',
-      scheduledAt: DateTime(now.year, now.month, now.day, 6, 0),
+      scheduledAt: DateTime(now.year, now.month, now.day, 6),
       status: PickingListStatus.published,
       createdBy: 'u_manager',
       updatedAt: now,

@@ -6,7 +6,7 @@ import 'package:pickllist/features/picking_lists/presentation/widgets/picking_it
 import 'package:pickllist/l10n/generated/app_localizations.dart';
 
 class PickingListDetailScreen extends ConsumerWidget {
-  const PickingListDetailScreen({super.key, required this.listId});
+  const PickingListDetailScreen({required this.listId, super.key});
   final String listId;
 
   @override

@@ -14,12 +14,12 @@ final pickingListsProvider = StreamProvider<List<PickingList>>((ref) {
   return ref.watch(pickingListRepositoryProvider).watchLists();
 });
 
-final pickingListItemsProvider =
+final StreamProviderFamily<List<PickingItem>, String> pickingListItemsProvider =
     StreamProvider.family<List<PickingItem>, String>((ref, listId) {
       return ref.watch(pickingListRepositoryProvider).watchItems(listId);
     });
 
-final pickingListByIdProvider =
+final ProviderFamily<AsyncValue<PickingList?>, String> pickingListByIdProvider =
     Provider.family<AsyncValue<PickingList?>, String>((ref, listId) {
       return ref
           .watch(pickingListsProvider)
