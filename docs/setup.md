@@ -100,6 +100,8 @@ The Firebase impls will read these at startup.
 GitHub Actions in `.github/workflows/ci.yml` runs on every push + PR:
 `flutter pub get → dart format check → flutter analyze --fatal-infos →
 flutter gen-l10n → flutter test --coverage` and uploads the lcov
-report as an artifact. No secrets are required for the POC; once
-Firebase is wired we'll add a workflow job that runs the rules tests
-against the Firestore emulator.
+report as an artifact. CI also builds the Windows desktop app with
+`flutter build windows --debug` on a Windows runner and uploads the
+debug build output for smoke checks. No secrets are required for the
+POC; once Firebase is wired we'll add a workflow job that runs the
+rules tests against the Firestore emulator.

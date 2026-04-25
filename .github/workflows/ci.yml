@@ -118,3 +118,36 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           if-no-files-found: ignore
+
+  windows_build:
+    name: Build Windows app
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.41.x'
+          cache: true
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Build Windows app
+        run: flutter build windows --debug
+
+      - name: Upload Windows build artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-debug-build
+          path: build/windows/x64/runner/Debug/
+          if-no-files-found: error
