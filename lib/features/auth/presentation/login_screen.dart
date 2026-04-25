@@ -42,6 +42,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on AuthException {
       if (!mounted) return;
       setState(() => _error = AppLocalizations.of(context).loginFailed);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = AppLocalizations.of(context).loginFailed);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
