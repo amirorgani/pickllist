@@ -168,6 +168,37 @@ jobs:
         working-directory: firebase/functions
         run: npm run smoke
 
+  rules_tests:
+    name: Firestore rules tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: firebase/rules-tests/package-lock.json
+
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install firebase-tools
+        run: npm install -g firebase-tools@^15.0.0
+
+      - name: Install rules-tests dependencies
+        working-directory: firebase/rules-tests
+        run: npm ci
+
+      - name: Run rules tests against Firestore emulator
+        working-directory: firebase/rules-tests
+        run: npm run emulators:exec
+
   windows_build:
     name: Build Windows app
     runs-on: windows-latest
