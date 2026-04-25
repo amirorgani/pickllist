@@ -40,6 +40,7 @@ this file in the same PR.
 | `mocktail` | Lightweight mocking/stubbing in tests. |
 | `fake_cloud_firestore` | Firestore-backed tests without a live backend. |
 | `firebase_auth_mocks` | Firebase Auth test doubles for repository tests. |
+| `mock_exceptions` | Drives `whenCalling(...).thenThrow(...)` against firebase_auth_mocks so tests can exercise FirebaseAuthException → AuthException mapping. |
 
 ## Firebase Functions workspace
 
