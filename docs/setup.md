@@ -38,7 +38,7 @@ for Windows without re-running `flutterfire configure`.
 | File | Committed? | Why |
 |------|-----------|-----|
 | `lib/firebase_options.dart` | Yes | Public config; needed for CI builds. Protected by App Check (`FIRE-10`) and Firestore rules (`FIRE-06`), not by obscurity. |
-| `android/app/google-services.json` | No | Regenerated deterministically by `flutterfire configure`. Every dev/CI runs it before an Android build. |
+| `android/app/google-services.json` | No | Regenerated deterministically by `flutterfire configure` when mobile Firebase-native config is needed. The POC debug APK CI build does not require it. |
 | `ios/Runner/GoogleService-Info.plist` | No | Same reason. |
 
 ### Regenerate native client config (Android / iOS)
@@ -102,6 +102,10 @@ GitHub Actions in `.github/workflows/ci.yml` runs on every push + PR:
 flutter gen-l10n → flutter test --coverage` and uploads the lcov
 report as an artifact. CI also builds the Windows desktop app with
 `flutter build windows --debug` on a Windows runner and uploads the
-debug build output for smoke checks. No secrets are required for the
-POC; once Firebase is wired we'll add a workflow job that runs the
-rules tests against the Firestore emulator.
+debug build output for smoke checks. It builds a debug-signed Android
+APK with `flutter build apk --debug` on a Linux runner and uploads
+`app-debug.apk` for smoke checks. Production Android keystore signing,
+Firebase App Distribution, and release deployment are separate release
+work, not part of the CI APK build. No secrets are required for the POC;
+once Firebase is wired we'll add a workflow job that runs the rules tests
+against the Firestore emulator.
