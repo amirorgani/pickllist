@@ -156,27 +156,30 @@ void main() {
       );
     });
 
-    test('wraps non-FirebaseAuthException from builder into unknown-error',
-        () async {
-      final user = MockUser(uid: 'u_boom', email: 'boom@farm.test');
-      final auth = MockFirebaseAuth(mockUser: user);
-      final repo = FirebaseAuthRepository(
-        auth: auth,
-        firestore: FakeFirebaseFirestore(),
-        builder: (_, __) async => throw Exception('simulated Firestore error'),
-      );
+    test(
+      'wraps non-FirebaseAuthException from builder into unknown-error',
+      () async {
+        final user = MockUser(uid: 'u_boom', email: 'boom@farm.test');
+        final auth = MockFirebaseAuth(mockUser: user);
+        final repo = FirebaseAuthRepository(
+          auth: auth,
+          firestore: FakeFirebaseFirestore(),
+          builder: (_, __) async =>
+              throw Exception('simulated Firestore error'),
+        );
 
-      expect(
-        () => repo.signIn(email: 'boom@farm.test', password: 'pw'),
-        throwsA(
-          isA<AuthException>().having(
-            (e) => e.message,
-            'message',
-            'unknown-error',
+        expect(
+          () => repo.signIn(email: 'boom@farm.test', password: 'pw'),
+          throwsA(
+            isA<AuthException>().having(
+              (e) => e.message,
+              'message',
+              'unknown-error',
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
 
     test('maps unrecognized codes to unknown-error', () async {
       final auth = MockFirebaseAuth();
