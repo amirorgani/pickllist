@@ -164,7 +164,7 @@ void main() {
         final repo = FirebaseAuthRepository(
           auth: auth,
           firestore: FakeFirebaseFirestore(),
-          builder: (_, __) async =>
+          builder: (user, profile) async =>
               throw Exception('simulated Firestore error'),
         );
 
