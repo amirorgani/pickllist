@@ -1,5 +1,5 @@
 {
-  "overallPercent": 40.16,
-  "source": "Generated from flutter test --coverage on main before GUARD-01 implementation.",
+  "overallPercent": 95.66,
+  "source": "Raised to 90% as part of GUARD-09",
   "shipTargetPercent": 90.0
 }
