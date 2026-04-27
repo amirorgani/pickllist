@@ -227,5 +227,21 @@ void main() {
       final first = await repo.authStateChanges().first;
       expect(first, isNull);
     });
+
+    test('emits null when user doc has active=false', () async {
+      final user = MockUser(uid: 'u_inactive', email: 'inactive@farm.test');
+      final auth = MockFirebaseAuth(mockUser: user, signedIn: true);
+      final firestore = FakeFirebaseFirestore();
+      await firestore.collection('users').doc('u_inactive').set({
+        'email': 'inactive@farm.test',
+        'displayName': 'Inactive Worker',
+        'role': 'worker',
+        'active': false,
+      });
+
+      final repo = FirebaseAuthRepository(auth: auth, firestore: firestore);
+      final first = await repo.authStateChanges().first;
+      expect(first, isNull);
+    });
   });
 }

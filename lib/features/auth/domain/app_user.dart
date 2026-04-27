@@ -25,6 +25,7 @@ class AppUser {
     required this.email,
     required this.displayName,
     required this.role,
+    this.active = true,
   });
 
   /// Creates a user from a serialized map.
@@ -33,6 +34,7 @@ class AppUser {
     email: map['email'] as String,
     displayName: map['displayName'] as String,
     role: UserRole.fromName(map['role'] as String),
+    active: (map['active'] as bool?) ?? true,
   );
 
   /// Stable user id from the auth/user store.
@@ -47,6 +49,9 @@ class AppUser {
   /// Authorization role for feature gating.
   final UserRole role;
 
+  /// Whether this user has active access. Set to `false` to revoke access.
+  final bool active;
+
   /// Whether this user can access manager-only features.
   bool get isManager => role == UserRole.manager;
 
@@ -56,12 +61,14 @@ class AppUser {
     String? email,
     String? displayName,
     UserRole? role,
+    bool? active,
   }) {
     return AppUser(
       id: id ?? this.id,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
       role: role ?? this.role,
+      active: active ?? this.active,
     );
   }
 
@@ -71,6 +78,7 @@ class AppUser {
     'email': email,
     'displayName': displayName,
     'role': role.name,
+    'active': active,
   };
 
   @override
@@ -80,13 +88,15 @@ class AppUser {
           other.id == id &&
           other.email == email &&
           other.displayName == displayName &&
-          other.role == role);
+          other.role == role &&
+          other.active == active);
 
   @override
-  int get hashCode => Object.hash(id, email, displayName, role);
+  int get hashCode => Object.hash(id, email, displayName, role, active);
 
   @override
-  String toString() => 'AppUser(id: $id, email: $email, role: ${role.name})';
+  String toString() =>
+      'AppUser(id: $id, email: $email, role: ${role.name}, active: $active)';
 }
 
 /// Convenience lookups for user collections.

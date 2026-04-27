@@ -152,6 +152,34 @@ The matching key is the roadmap ID prefix in the issue title (e.g.
 `GUARD-02`). Renaming the title is safe; deleting the prefix breaks the
 link and the next run will create a duplicate issue.
 
+## Running integration tests locally
+
+Integration tests in `integration_test/` run against the real Firestore emulator
+(not the in-memory fake used by unit tests in `test/`).
+
+1. Install firebase-tools if you haven't already:
+
+   ```sh
+   npm install -g firebase-tools
+   ```
+
+2. From the repo root, launch the emulator and run the integration tests in a
+   single command:
+
+   ```sh
+   firebase emulators:exec \
+     --only firestore \
+     --project demo-pickllist \
+     "flutter test integration_test/firestore_picking_list_repository_emulator_test.dart -d linux"
+   ```
+
+   On macOS/Linux, `flutter test … -d linux` uses the headless Linux runner.
+   On Windows you can substitute `-d windows`, though the emulator command
+   itself requires a Unix shell (WSL or Git Bash).
+
+   The emulator starts, the tests run, and the emulator shuts down automatically
+   when the test command exits.
+
 ## CI
 
 GitHub Actions in `.github/workflows/ci.yml` runs on every push + PR:

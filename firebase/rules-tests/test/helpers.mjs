@@ -45,6 +45,8 @@ export async function seedFixture(env) {
     await db.doc('users/manager_1').set({ role: 'manager', email: 'm@x', displayName: 'M' });
     await db.doc('users/worker_a').set({ role: 'worker',  email: 'a@x', displayName: 'A' });
     await db.doc('users/worker_b').set({ role: 'worker',  email: 'b@x', displayName: 'B' });
+    await db.doc('users/inactive_worker').set({ role: 'worker', email: 'i@x', displayName: 'Inactive', active: false });
+    await db.doc('users/inactive_manager').set({ role: 'manager', email: 'im@x', displayName: 'InactiveMgr', active: false });
 
     await db.doc('pickingLists/list_pub').set({
       name: 'Published list',

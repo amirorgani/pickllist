@@ -26,6 +26,12 @@ function asWorker(uid = 'worker_a') {
 function asUnsigned() {
   return env.unauthenticatedContext().firestore();
 }
+function asInactiveWorker() {
+  return env.authenticatedContext('inactive_worker').firestore();
+}
+function asInactiveManager() {
+  return env.authenticatedContext('inactive_manager').firestore();
+}
 
 test('manager can do anything: read/create/update/delete picking lists', async () => {
   const db = asManager();
@@ -172,4 +178,36 @@ test('manager can write users and crops and templates', async () => {
   await assertSucceeds(db.doc('users/new').set({ role: 'worker', email: 'x', displayName: 'x' }));
   await assertSucceeds(db.doc('crops/c_x').set({ name: 'x', defaultUnit: 'kg', active: true }));
   await assertSucceeds(db.doc('templates/t2').set({ name: 'Saturday', items: [] }));
+});
+
+test('inactive worker cannot read published picking list', async () => {
+  const db = asInactiveWorker();
+  await assertFails(db.doc(PUB_LIST).get());
+});
+
+test('inactive worker cannot read users directory', async () => {
+  const db = asInactiveWorker();
+  await assertFails(db.doc('users/worker_a').get());
+});
+
+test('inactive worker cannot claim a picking list item row', async () => {
+  const db = asInactiveWorker();
+  await assertFails(
+    db.doc(`${PUB_LIST}/items/free`).update({ assignedTo: 'inactive_worker' }),
+  );
+});
+
+test('inactive manager cannot write picking lists', async () => {
+  const db = asInactiveManager();
+  await assertFails(
+    db.collection('pickingLists').doc('mgr_new').set({
+      name: 'New', scheduledAt: new Date(), status: 'draft',
+      createdBy: 'inactive_manager', updatedAt: new Date(),
+    }),
+  );
+});
+
+test('inactive manager cannot write users', async () => {
+  const db = asInactiveManager();
+  await assertFails(db.doc('users/new').set({ role: 'worker', email: 'x', displayName: 'x' }));
 });
