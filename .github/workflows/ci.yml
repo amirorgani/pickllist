@@ -199,6 +199,44 @@ jobs:
         working-directory: firebase/rules-tests
         run: npm run emulators:exec
 
+  firestore_emulator_integration_test:
+    name: Firestore emulator integration test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: '3.41.x'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Install firebase-tools
+        run: npm install -g firebase-tools@^15.0.0
+
+      - name: Run integration tests against Firestore emulator
+        env:
+          FIRESTORE_EMULATOR_HOST: localhost:8080
+        run: >
+          firebase emulators:exec
+          --only firestore
+          --project demo-pickllist
+          "flutter test integration_test/firestore_picking_list_repository_emulator_test.dart -d linux"
+
   windows_build:
     name: Build Windows app
     runs-on: windows-latest
