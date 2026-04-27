@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,8 +24,8 @@ void main() {
 
   setUpAll(() async {
     await Firebase.initializeApp(options: _kOptions);
-    firestore = FirebaseFirestore.instance;
-    firestore.useFirestoreEmulator('localhost', 8080);
+    firestore = FirebaseFirestore.instance
+      ..useFirestoreEmulator('localhost', 8080);
   });
 
   setUp(() {
@@ -74,7 +72,7 @@ void main() {
       listId: listId,
       cropId: 'crop-tomato',
       cropName: 'Tomato',
-      quantity: 5.0,
+      quantity: 5,
       unit: QuantityUnit.kg,
       note: 'Handle gently',
     );
@@ -104,7 +102,7 @@ void main() {
       listId: listId,
       cropId: 'crop-pepper',
       cropName: 'Pepper',
-      quantity: 3.0,
+      quantity: 3,
       unit: QuantityUnit.boxes,
     );
 
