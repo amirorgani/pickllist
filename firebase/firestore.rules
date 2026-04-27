@@ -9,7 +9,8 @@ service cloud.firestore {
     // ---------- helpers ----------
     function isSignedIn()   { return request.auth != null; }
     function myRole()       { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
-    function isManager()    { return isSignedIn() && myRole() == 'manager'; }
+    function isActive()     { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('active', true) != false; }
+    function isManager()    { return isSignedIn() && isActive() && myRole() == 'manager'; }
     function myUid()        { return request.auth.uid; }
 
     // Fields that a worker is allowed to modify on a picking list item.
@@ -23,13 +24,13 @@ service cloud.firestore {
     // Firebase Admin SDK from a manager tool). Any signed-in user can read
     // the directory (needed for the assignee picker).
     match /users/{uid} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() && isActive();
       allow write: if isManager();
     }
 
     // ---------- crops ----------
     match /crops/{cropId} {
-      allow read:  if isSignedIn();
+      allow read:  if isSignedIn() && isActive();
       allow write: if isManager();
     }
 
@@ -38,7 +39,7 @@ service cloud.firestore {
     // draft and completed). See docs/data-model.md.
     match /pickingLists/{listId} {
       allow read:   if isManager()
-                    || (isSignedIn() && resource.data.status != 'draft');
+                    || (isSignedIn() && isActive() && resource.data.status != 'draft');
       allow create: if isManager();
       allow update: if isManager();
       allow delete: if isManager();
@@ -47,7 +48,7 @@ service cloud.firestore {
         // Items inherit the parent list's visibility: a worker can only
         // read item rows if they could read the parent list.
         allow read: if isManager()
-                    || (isSignedIn()
+                    || (isSignedIn() && isActive()
                         && get(/databases/$(database)/documents/pickingLists/$(listId)).data.status != 'draft');
 
         // Manager can do anything.
@@ -55,7 +56,7 @@ service cloud.firestore {
 
         // Workers can claim (set assignedTo to themselves), release their
         // own row (null), and mark their assigned row picked.
-        allow update: if isSignedIn()
+        allow update: if isSignedIn() && isActive()
           && !isManager()
           && workerOnlyTouchesAllowedFields()
           && (
@@ -78,7 +79,7 @@ service cloud.firestore {
 
     // ---------- templates ----------
     match /templates/{templateId} {
-      allow read:  if isSignedIn();
+      allow read:  if isSignedIn() && isActive();
       allow write: if isManager();
     }
   }

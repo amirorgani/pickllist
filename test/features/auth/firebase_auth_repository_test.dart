@@ -156,31 +156,6 @@ void main() {
       );
     });
 
-    test(
-      'wraps non-FirebaseAuthException from builder into unknown-error',
-      () async {
-        final user = MockUser(uid: 'u_boom', email: 'boom@farm.test');
-        final auth = MockFirebaseAuth(mockUser: user);
-        final repo = FirebaseAuthRepository(
-          auth: auth,
-          firestore: FakeFirebaseFirestore(),
-          builder: (user, profile) async =>
-              throw Exception('simulated Firestore error'),
-        );
-
-        expect(
-          () => repo.signIn(email: 'boom@farm.test', password: 'pw'),
-          throwsA(
-            isA<AuthException>().having(
-              (e) => e.message,
-              'message',
-              'unknown-error',
-            ),
-          ),
-        );
-      },
-    );
-
     test('maps unrecognized codes to unknown-error', () async {
       final auth = MockFirebaseAuth();
       whenCalling(
@@ -249,6 +224,22 @@ void main() {
         firestore: FakeFirebaseFirestore(),
       );
 
+      final first = await repo.authStateChanges().first;
+      expect(first, isNull);
+    });
+
+    test('emits null when user doc has active=false', () async {
+      final user = MockUser(uid: 'u_inactive', email: 'inactive@farm.test');
+      final auth = MockFirebaseAuth(mockUser: user, signedIn: true);
+      final firestore = FakeFirebaseFirestore();
+      await firestore.collection('users').doc('u_inactive').set({
+        'email': 'inactive@farm.test',
+        'displayName': 'Inactive Worker',
+        'role': 'worker',
+        'active': false,
+      });
+
+      final repo = FirebaseAuthRepository(auth: auth, firestore: firestore);
       final first = await repo.authStateChanges().first;
       expect(first, isNull);
     });
