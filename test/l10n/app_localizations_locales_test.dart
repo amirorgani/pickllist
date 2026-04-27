@@ -1,7 +1,4 @@
 // L10n coverage tests for Hebrew and Thai locales. GUARD-09.
-// ignore_for_file: public_member_api_docs
-
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

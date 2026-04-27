@@ -36,7 +36,7 @@ void main() {
       configureLogging();
     });
 
-    test('records can be emitted after configureLogging', () {
+    test('records can be emitted after configureLogging', () async {
       configureLogging();
 
       final records = <LogRecord>[];
@@ -44,7 +44,7 @@ void main() {
 
       appLogger('test').info('hello coverage');
 
-      sub.cancel();
+      await sub.cancel();
 
       expect(records, hasLength(1));
       expect(records.first.message, equals('hello coverage'));

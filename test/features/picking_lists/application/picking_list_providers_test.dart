@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pickllist/features/auth/data/fake_auth_repository.dart';
 import 'package:pickllist/features/picking_lists/application/picking_list_providers.dart';
 import 'package:pickllist/features/picking_lists/data/fake_picking_list_repository.dart';
 import 'package:pickllist/features/picking_lists/domain/picking_list.dart';

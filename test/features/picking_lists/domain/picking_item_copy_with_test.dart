@@ -25,7 +25,7 @@ void main() {
 
     test('clearPickedAt sets pickedAt to null', () {
       final withPickedAt = seed().copyWith(
-        pickedAt: DateTime(2026, 4, 1),
+        pickedAt: DateTime(2026, 4),
       );
       final cleared = withPickedAt.copyWith(clearPickedAt: true);
 

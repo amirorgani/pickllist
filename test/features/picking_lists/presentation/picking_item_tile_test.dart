@@ -1,7 +1,5 @@
-// Presentation-layer widget tests for PickingItemTile. Coverage target GUARD-09.
-// ignore_for_file: public_member_api_docs
+// Presentation-layer widget tests for PickingItemTile. GUARD-09.
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +90,7 @@ void main() {
     testWidgets('shows quantity and unit', (tester) async {
       await tester.pumpWidget(
         buildTile(
-          baseItem(quantity: 50, unit: QuantityUnit.kg),
+          baseItem(),
           overrides: overrides(),
         ),
       );
@@ -105,7 +103,7 @@ void main() {
 
     testWidgets('shows unassigned label when no assignee', (tester) async {
       await tester.pumpWidget(
-        buildTile(baseItem(assignedTo: null), overrides: overrides()),
+        buildTile(baseItem(), overrides: overrides()),
       );
       await tester.pumpAndSettle();
 
@@ -128,7 +126,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        buildTile(baseItem(note: null), overrides: overrides()),
+        buildTile(baseItem(), overrides: overrides()),
       );
       await tester.pumpAndSettle();
 
@@ -168,7 +166,7 @@ void main() {
     testWidgets('shows Claim button for unassigned item', (tester) async {
       await tester.pumpWidget(
         buildTile(
-          baseItem(assignedTo: null),
+          baseItem(),
           overrides: overrides(signedIn: worker),
         ),
       );
@@ -221,9 +219,8 @@ void main() {
       addTearDown(() => FlutterError.onError = FlutterError.presentError);
 
       final pickedItem = baseItem(
-        quantity: 50,
         pickedQuantity: 40,
-        pickedAt: DateTime(2026, 4, 25, 8, 0),
+        pickedAt: DateTime(2026, 4, 25, 8),
         completedBy: 'u_worker',
       );
       await tester.pumpWidget(
@@ -248,9 +245,8 @@ void main() {
       addTearDown(() => FlutterError.onError = FlutterError.presentError);
 
       final pickedItem = baseItem(
-        quantity: 50,
         pickedQuantity: 60,
-        pickedAt: DateTime(2026, 4, 25, 8, 0),
+        pickedAt: DateTime(2026, 4, 25, 8),
         completedBy: 'u_worker',
       );
       await tester.pumpWidget(
@@ -273,9 +269,8 @@ void main() {
       addTearDown(() => FlutterError.onError = FlutterError.presentError);
 
       final pickedItem = baseItem(
-        quantity: 50,
         pickedQuantity: 50,
-        pickedAt: DateTime(2026, 4, 25, 9, 0),
+        pickedAt: DateTime(2026, 4, 25, 9),
         completedBy: 'u_worker',
       );
       await tester.pumpWidget(
@@ -391,8 +386,6 @@ void main() {
         final listId = lists.first.id;
         final items = await fakeRepo.watchItems(listId).first;
         final assigned = items.firstWhere((i) => i.isAssigned);
-        final originalAssignee = assigned.assignedTo;
-
         await tester.pumpWidget(
           buildTile(
             assigned,
