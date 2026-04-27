@@ -77,7 +77,7 @@ class FirebaseAuthRepository implements AuthRepository {
       throw AuthException(_mapCode(e.code));
     } on AuthException {
       rethrow;
-    } catch (_) {
+    } on Exception catch (_) {
       throw const AuthException('unknown-error');
     }
   }
