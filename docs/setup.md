@@ -76,6 +76,23 @@ the expected update path when apps are added/removed.
    Firestore with `role: "manager"`. After that the manager creates
    workers from the Windows app.
 
+4. **Deactivate a user** — set `active: false` on their `users/<uid>` document.
+   Firestore rules gate every read and write on `active != false`, so the
+   account is locked out immediately without deleting the Auth credential.
+   To re-activate, flip the field back to `true`.
+
+   Firestore console (one-off): open `users/<uid>` and set `active` to `false`.
+
+   Firebase CLI (scripted):
+   ```sh
+   firebase firestore:documents:update \
+     "users/<uid>" \
+     --field active --value false --type boolean \
+     --project picklist-by
+   ```
+
+   A manager UI for deactivation is tracked as part of `MGMT-02`.
+
 ## Local Firestore emulator
 
 Useful during development so you don't thrash the real project.

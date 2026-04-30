@@ -15,6 +15,7 @@ provision a worker account. `uid` matches the Firebase Auth UID.
 | `email`       | string                              | lowercased                         |
 | `displayName` | string                              |                                    |
 | `role`        | `"manager"` \| `"worker"`           | drives Firestore rules             |
+| `active`      | bool                                | `true`; set to `false` to revoke access |
 | `fcmTokens`   | array\<string\>                     | device tokens for push (future)    |
 
 ### `crops/{cropId}`
