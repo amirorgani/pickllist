@@ -111,6 +111,8 @@ class FirebaseAuthRepository implements AuthRepository {
   ) async {
     final data = profile.data();
     if (!profile.exists || data == null) return null;
+    final active = (data['active'] as bool?) ?? true;
+    if (!active) return null;
     final roleName = data['role'] as String? ?? UserRole.worker.name;
     final displayName =
         (data['displayName'] as String?) ??
@@ -123,6 +125,7 @@ class FirebaseAuthRepository implements AuthRepository {
       email: email,
       displayName: displayName,
       role: UserRole.fromName(roleName),
+      active: active,
     );
   }
 }
