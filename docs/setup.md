@@ -104,6 +104,31 @@ $env:FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 
 The Firebase impls will read these at startup.
 
+## Firestore emulator integration tests
+
+`integration_test/firestore_picking_list_repository_emulator_test.dart`
+exercises `FirestorePickingListRepository` against a real emulator. The
+CI job runs automatically; to run it locally:
+
+```sh
+# One-shot: emulator starts, tests run, emulator stops.
+cd firebase
+firebase emulators:exec \
+  --only firestore \
+  --project demo-pickllist \
+  "flutter test ../integration_test/ -d chrome"
+```
+
+Or, if the emulator is already running (from `emulators:start`):
+
+```sh
+flutter test integration_test/ -d chrome
+```
+
+Chrome must be installed (it is available on all CI runners and most
+developer machines). The test file uses stub `FirebaseOptions` so no
+real Firebase project or API key is required.
+
 ## Local Functions emulator
 
 Cloud Functions live in `firebase/functions/`. Local development uses the
